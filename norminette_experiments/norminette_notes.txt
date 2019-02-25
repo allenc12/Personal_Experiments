@@ -1,0 +1,19 @@
+Global scope:
+	typedef struct s_.*				t_.*; //is ignored for global scope alignment
+	typedef struct		s_list//must be aligned to global scope
+	{
+		void			*data;
+		struct s_list	*next;
+	}					t_list;//as well as down here
+	struct				s_.*//must be aligned to global scope
+	{
+		void	*data;
+	};
+	union				u_float
+	{
+		long double		f;//vars inside of union require alignment
+		struct {
+			uint64_t	m;
+			uint16_t	se;//vars inside of semi-anon struct require alignment
+		}				i;//semi-anon struct inside of union requires alignment
+	};

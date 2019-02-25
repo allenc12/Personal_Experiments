@@ -1,0 +1,62 @@
+Usage: /usr/bin/norminette [options] [files_or_directories]
+    -v, --version                    Print version
+    -R, --rules Array                Rule to disable
+    -h, --help                       Prints this help
+Norminette usage:
+Version 2.3.3:
+
+CheckInclude
+CheckTypePrefixName
+CheckOneInstructionPerLine
+CheckTernaryOperator
+CheckPreprocessorIndentation
+CheckIncludesBeforeFirstInstruction
+CheckBlock
+CheckForbiddenKeyword
+CheckKeywordSpacing
+CheckAlignement
+CheckMultipleSpaces
+CheckNamedParameters
+CheckReturnParentheses
+CheckIndentationMultiline
+CheckCommentsFormat
+CheckIndentationInsideFunction
+CheckOperatorSpacing
+CheckForbiddenSourceHeader
+CheckMultipleEmptyLines
+CheckDefine
+CheckUnaryOperator
+CheckBracketSpacing
+CheckFilename
+CheckParametersNumber
+CheckControlStructure
+CheckMultipleAssignation
+CheckFunctionSpacing
+CheckFunctionNumber
+CheckNestedTernary
+CheckBeginningOfLine
+CheckDeclarationCount
+CheckNumberOfLine
+CheckCase
+CheckDoubleInclusion
+CheckTypeDeclarationSpacing
+CheckCallSpacing
+CheckDeclarationPlacement
+CheckSeparationChar
+CheckTopCommentHeader
+CheckElseIf
+CheckNoArgFunction
+CheckGlobalTypePrefixName
+CheckEmptyLine
+CheckVla
+CheckCppComment
+CheckSpaceBetweenFunctions
+CheckArgumentSpacing
+CheckEndOfLine
+CheckColumnLength
+CheckNumberOfVariables
+CheckComma
+CheckParentSpacing
+CheckCommentsPlacement
+CheckDeclarationInstanciation
+CheckIndentationOutsideFunction
