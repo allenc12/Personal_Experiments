@@ -43,7 +43,7 @@ class Lemon:
         n = line.split('-')
         self.G.add_edge(n[0], n[1], color='grey')
 
-    def readinput(self):
+    def read_input(self):
         start_end = 0
         lines = [line.rstrip('\n') for line in sys.stdin]
         num_lines = len(lines)
