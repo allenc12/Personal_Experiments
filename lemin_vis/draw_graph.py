@@ -33,18 +33,18 @@ class Lemon:
     def add_room(self, line, start_end):
         n = line.split(' ')
         if start_end == -1 and 'red' not in self.nodes_colors:
-            self.G.add_node(n[0])
+            self.G.add_node(n[0],weight=2)
             self.nodes_colors.append('red')
         elif start_end == 1 and 'green' not in self.nodes_colors:
-            self.G.add_node(n[0])
+            self.G.add_node(n[0],weight=2)
             self.nodes_colors.append('green')
         else:
-            self.G.add_node(n[0])
+            self.G.add_node(n[0],weight=2)
             self.nodes_colors.append('grey')
 
     def add_edge(self, line):
         n = line.split('-')
-        self.G.add_edge(n[0], n[1])
+        self.G.add_edge(n[0], n[1], weight=1)
         self.edges_colors.append('grey')
 
     def read_input(self, f):
@@ -67,13 +67,14 @@ class Lemon:
             # start_end = 0
             n+=1
         while n < num_lines and ('-' in lines[n] or lines[n] == ''):
-            # print('lines[' + str(n) + '] = \'' + lines[n] + '\'')
+            print('lines[' + str(n) + '] = \'' + lines[n] + '\'')
             if lines[n] != '' and lines[n][0] != 'L':
                 self.add_edge(lines[n])
             elif lines[n] != '' and lines[n][0] == 'L':
                 self.antmoves.append(lines[n])
             n+=1
         tmp = {}
+        print("num_moves: " + str(len(self.antmoves)) + " tmp: " + str(len(tmp)))
         for line in self.antmoves:
             for move in line.split(' '):
                 a = move.split('-')
@@ -81,14 +82,27 @@ class Lemon:
                     tmp[a[0]] = [a[1]]
                 else:
                     tmp[a[0]].append(a[1])
-        self.antmoves = tmp
+        # self.antmoves = tmp
+        print("num_moves: " + str(len(self.antmoves)) + " tmp: " + str(len(tmp)))
         print("num_edges: " + str(len(self.G.edges)) + ' ecolors: ' + str(len(self.edges_colors)))
         print("num_nodes: " + str(len(self.G.nodes)) + ' ncolors: ' + str(len(self.nodes_colors)))
 
     def draw_graph(self):
-        # nc = range(len(self.G.nodes))
-        # ec = range(len(self.G.edges))
-        nx.draw_networkx(self.G, pos=nx.spectral_layout(self.G), node_size=10,node_color=self.nodes_colors, edge_color=self.edges_colors, with_labels=False)
+        print(self.antmoves)
+        input()
+        epath = [ (u,v) for (u,v,d) in self.G.edges(data=True) if d['weight'] == 2 ]
+        print("len(epath): " + str(len(epath)))
+        egarb = [ (u,v) for (u,v,d) in self.G.edges(data=True) if d['weight'] == 1 ]
+        print("len(egarb): " + str(len(egarb)))
+        npath = [ n for (n) in self.G.nodes() if n in epath ]
+        print("len(npath): " + str(len(npath)))
+        ngarb = [ n for (n) in self.G.nodes() if n not in epath ]
+        print("len(ngarb): " + str(len(ngarb)))
+        pos = nx.spectral_layout(self.G)
+        nx.draw_networkx_edges(self.G, pos, edgelist=epath, width=1, alpha=1, edge_color='b')
+        nx.draw_networkx_edges(self.G, pos, edgelist=egarb, width=0.5, alpha=0.1, edge_color='gray')
+        nx.draw_networkx_nodes(self.G, pos, nodelist=npath, node_size=50, alpha=1.0, node_color='orange', with_labels=False)
+        nx.draw_networkx_nodes(self.G, pos, nodelist=ngarb, node_size=5, alpha=0.01, node_color='gray', with_labels=False)
         plt.show()
 
 def print_err(code):
@@ -398,10 +412,12 @@ def big():
         'Uzg2', 'Svu9', 'Xjv3', 'Afs5', 'Ngk2', 'Eny8', 'Rkf4', 'H_w3', 'Rhi5',
         'Ox_7'
     ]]
-    G = nx.read_edgelist("big-edgelist", delimiter='-', nodetype=str)
+    lb = Lemon()
+    f = open('big_out')
+    lb.read_input(f)
     i = 0
     ncolor = []
-    for node in G.nodes:
+    for node in lb.G.nodes:
         if node == bh[0]:
             ncolor.append(col_path[0])
         elif node == bh[1]:
@@ -417,44 +433,24 @@ def big():
         i += 1
     ecolor = []
     edges_remove = []
-    for edge in G.edges:
+    for edge in lb.G.edges:
         if (edge[0] in bpaths[0] and edge[1] in bpaths[0]) or (edge[0] in bh and edge[1] in bpaths[0]) or (edge[0] in bpaths[0] and edge[1] in bh):
             ecolor.append(col_path[2])
-            G[edge[0]][edge[1]]['weight'] = 2
+            lb.G[edge[0]][edge[1]]['weight'] = 2
         elif (edge[0] in bpaths[1] and edge[1] in bpaths[1]) or (edge[0] in bh and edge[1] in bpaths[1]) or (edge[0] in bpaths[1] and edge[1] in bh):
             ecolor.append(col_path[3])
-            G[edge[0]][edge[1]]['weight'] = 2
+            lb.G[edge[0]][edge[1]]['weight'] = 2
         elif (edge[0] in bpaths[2] and edge[1] in bpaths[2]) or (edge[0] in bh and edge[1] in bpaths[2]) or (edge[0] in bpaths[2] and edge[1] in bh):
             ecolor.append(col_path[4])
-            G[edge[0]][edge[1]]['weight'] = 2
+            lb.G[edge[0]][edge[1]]['weight'] = 2
         else:
-            edges_remove.append(edge)
             ecolor.append(col_path[11])
-            G[edge[0]][edge[1]]['weight'] = 1
-    # G.remove_edges_from(edges_remove)
-    # G.remove_nodes_from(nodes_remove)
-    # edges_remove = set(edges_remove)
-    # k = 0
-    # for i in range(len(edges_remove)):
-    #     for j in range(len(edges_remove)):
-    #         if i != j and edges_remove[i] == edges_remove[j]:
-    #             G.remove_edge(edges_remove[j])
-    #             G.remove_edge(edges_remove[i])
-    #             k += 1
-    # newcolors = []
-    # for ec in ecolor:
-    #     if ec != "grey":
-    #         newcolors.append(ec)
-    #     else:
-    #         G.remove_node(edge[0])
-    #         G.remove_node(edge[1])
-    #         G.remove_nodes_from(edge)
-    num_edges = len(G.edges)
-    num_nodes = len(G.nodes)
+            lb.G[edge[0]][edge[1]]['weight'] = 1
+    num_edges = len(lb.G.edges)
+    num_nodes = len(lb.G.nodes)
     print("num_nodes: " + str(num_nodes))
     print("num_edges: " + str(num_edges) + " len(ecolor): " + str(len(ecolor)))
-    nx.draw_networkx(G, pos=nx.spectral_layout(G), node_size=10, node_color=ncolor, edge_color=ecolor, with_labels=False)
-    plt.show()
+    lb.draw_graph()
 
 def main():
     loops = Lemon()
