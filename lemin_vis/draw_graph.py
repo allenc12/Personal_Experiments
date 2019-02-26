@@ -32,46 +32,51 @@ class Lemon:
 
     def add_room(self, line, start_end):
         n = line.split(' ')
-        if start_end == -1:
-            self.G.add_node(n[0], color='red')
-        elif start_end == 1:
-            self.G.add_node(n[0], color='green')
+        if start_end == -1 and 'red' not in self.nodes_colors:
+            self.G.add_node(n[0])
+            self.nodes_colors.append('red')
+        elif start_end == 1 and 'green' not in self.nodes_colors:
+            self.G.add_node(n[0])
+            self.nodes_colors.append('green')
         else:
-            self.G.add_node(n[0], color='grey')
+            self.G.add_node(n[0])
+            self.nodes_colors.append('grey')
 
     def add_edge(self, line):
         n = line.split('-')
-        self.G.add_edge(n[0], n[1], color='grey')
+        self.G.add_edge(n[0], n[1])
+        self.edges_colors.append('grey')
 
-    def read_input(self):
+    def read_input(self, f):
         start_end = 0
-        lines = [line.rstrip('\n') for line in sys.stdin]
+        lines = [line.rstrip('\n') for line in f]
         num_lines = len(lines)
         n = 0
         while n < num_lines and '-' not in lines[n]:
             if n == 0:
                 self.num_ants = int(lines[0])
-                n+=1
-                continue
-            if lines[n][0] == '#':
+            elif lines[n][0] == '#':
                 if lines[n] == '##start':
                     start_end = 1
                 elif lines[n] == '##end':
                     start_end = -1
                 else:
                     start_end = 0
-                n+=1
-                continue
             else:
                 self.add_room(lines[n], start_end)
+            # start_end = 0
+            n+=1
         while n < num_lines and '-' in lines[n]:
             if lines[n][0] != 'L':
                 self.add_edge(lines[n])
             else:
                 self.antmoves.append(lines[n])
+            n+=1
+        print("num_edges: " + str(len(self.G.edges)) + ' ecolors: ' + str(len(self.edges_colors)))
+        print("num_nodes: " + str(len(self.G.nodes)) + ' ncolors: ' + str(len(self.nodes_colors)))
 
     def draw_graph(self):
-        nx.draw_networkx(self.G, pos=nx.spectral_layout(self.G), node_size=10, node_color=self.nodes_colors, edge_color=self.edges_colors, with_labels=False)
+        nx.draw_networkx(self.G, pos=nx.spectral_layout(self.G), node_size=10,node_color=self.nodes_colors, edge_color=self.edges_colors, with_labels=False)
         plt.show()
 
 def print_err(code):
@@ -296,32 +301,32 @@ def soup():
     edges_remove = []
     for edge in G.edges:
         if (edge[0] in paths[0] and edge[1] in paths[0]) or (edge[0] in h and edge[1] in paths[0]) or (edge[0] in paths[0] and edge[1] in h):
-            G[edge[0]][edge[1]]['weight'] = 10
+            G[edge[0]][edge[1]]['weight'] = 1
             ecolor.append(col_path[2])
         elif (edge[0] in paths[1] and edge[1] in paths[1]) or (edge[0] in h and edge[1] in paths[1]) or (edge[0] in paths[1] and edge[1] in h):
             ecolor.append(col_path[3])
-            G[edge[0]][edge[1]]['weight'] = 10
+            G[edge[0]][edge[1]]['weight'] = 1
         elif (edge[0] in paths[2] and edge[1] in paths[2]) or (edge[0] in h and edge[1] in paths[2]) or (edge[0] in paths[2] and edge[1] in h):
             ecolor.append(col_path[4])
-            G[edge[0]][edge[1]]['weight'] = 10
+            G[edge[0]][edge[1]]['weight'] = 1
         elif (edge[0] in paths[3] and edge[1] in paths[3]) or (edge[0] in h and edge[1] in paths[3]) or (edge[0] in paths[3] and edge[1] in h):
             ecolor.append(col_path[5])
-            G[edge[0]][edge[1]]['weight'] = 10
+            G[edge[0]][edge[1]]['weight'] = 1
         elif (edge[0] in paths[4] and edge[1] in paths[4]) or (edge[0] in h and edge[1] in paths[4]) or (edge[0] in paths[4] and edge[1] in h):
             ecolor.append(col_path[6])
-            G[edge[0]][edge[1]]['weight'] = 10
+            G[edge[0]][edge[1]]['weight'] = 1
         elif (edge[0] in paths[5] and edge[1] in paths[5]) or (edge[0] in h and edge[1] in paths[5]) or (edge[0] in paths[5] and edge[1] in h):
             ecolor.append(col_path[7])
-            G[edge[0]][edge[1]]['weight'] = 10
+            G[edge[0]][edge[1]]['weight'] = 1
         elif (edge[0] in paths[6] and edge[1] in paths[6]) or (edge[0] in h and edge[1] in paths[6]) or (edge[0] in paths[6] and edge[1] in h):
             ecolor.append(col_path[8])
-            G[edge[0]][edge[1]]['weight'] = 10
+            G[edge[0]][edge[1]]['weight'] = 1
         elif (edge[0] in paths[7] and edge[1] in paths[7]) or (edge[0] in h and edge[1] in paths[7]) or (edge[0] in paths[7] and edge[1] in h):
             ecolor.append(col_path[9])
-            G[edge[0]][edge[1]]['weight'] = 10
+            G[edge[0]][edge[1]]['weight'] = 1
         elif (edge[0] in paths[8] and edge[1] in paths[8]) or (edge[0] in h and edge[1] in paths[8]) or (edge[0] in paths[8] and edge[1] in h):
             ecolor.append(col_path[10])
-            G[edge[0]][edge[1]]['weight'] = 10
+            G[edge[0]][edge[1]]['weight'] = 1
         else:
             edges_remove.append(edge)
             ecolor.append(col_path[11])
@@ -402,14 +407,14 @@ def big():
     edges_remove = []
     for edge in G.edges:
         if (edge[0] in bpaths[0] and edge[1] in bpaths[0]) or (edge[0] in bh and edge[1] in bpaths[0]) or (edge[0] in bpaths[0] and edge[1] in bh):
-            G[edge[0]][edge[1]]['weight'] = 10
             ecolor.append(col_path[2])
+            G[edge[0]][edge[1]]['weight'] = 2
         elif (edge[0] in bpaths[1] and edge[1] in bpaths[1]) or (edge[0] in bh and edge[1] in bpaths[1]) or (edge[0] in bpaths[1] and edge[1] in bh):
             ecolor.append(col_path[3])
-            G[edge[0]][edge[1]]['weight'] = 10
+            G[edge[0]][edge[1]]['weight'] = 2
         elif (edge[0] in bpaths[2] and edge[1] in bpaths[2]) or (edge[0] in bh and edge[1] in bpaths[2]) or (edge[0] in bpaths[2] and edge[1] in bh):
             ecolor.append(col_path[4])
-            G[edge[0]][edge[1]]['weight'] = 10
+            G[edge[0]][edge[1]]['weight'] = 2
         else:
             edges_remove.append(edge)
             ecolor.append(col_path[11])
@@ -440,15 +445,24 @@ def big():
     plt.show()
 
 def main():
+    loops = Lemon()
     if len(sys.argv) > 1:
         if sys.argv[1] == 'big':
             big()
         elif sys.argv[1] == 'soup':
             soup()
+        else:
+            try:
+                f = open(sys.argv[1], 'r')
+                loops.read_input(f)
+                f.close()
+                loops.draw_graph()
+            except FileNotFoundError:
+                print_err(READ_ERR)
     else:
-        loops = Lemon()
         try:
-            loops.read_input()
+            loops.read_input(sys.stdin)
+            loops.draw_graph()
         except FileNotFoundError:
             print_err(READ_ERR)
         #TODO: Lemon.draw_graph()
