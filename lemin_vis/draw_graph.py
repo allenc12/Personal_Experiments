@@ -72,10 +72,21 @@ class Lemon:
             else:
                 self.antmoves.append(lines[n])
             n+=1
+        tmp = {}
+        for line in self.antmoves:
+            for move in line.split(' '):
+                a = move.split('-')
+                if a[0] not in tmp:
+                    tmp[a[0]] = [a[1]]
+                else:
+                    tmp[a[0]].append(a[1])
+        self.antmoves = tmp
         print("num_edges: " + str(len(self.G.edges)) + ' ecolors: ' + str(len(self.edges_colors)))
         print("num_nodes: " + str(len(self.G.nodes)) + ' ncolors: ' + str(len(self.nodes_colors)))
 
     def draw_graph(self):
+        # nc = range(len(self.G.nodes))
+        # ec = range(len(self.G.edges))
         nx.draw_networkx(self.G, pos=nx.spectral_layout(self.G), node_size=10,node_color=self.nodes_colors, edge_color=self.edges_colors, with_labels=False)
         plt.show()
 
