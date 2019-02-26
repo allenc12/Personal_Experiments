@@ -70,6 +70,10 @@ class Lemon:
             else:
                 self.antmoves.append(lines[n])
 
+    def draw_graph(self):
+        nx.draw_networkx(self.G, pos=nx.spectral_layout(self.G), node_size=10, node_color=self.nodes_colors, edge_color=self.edges_colors, with_labels=False)
+        plt.show()
+
 def print_err(code):
     if code == ANTS_ERR:
         print("Ant error")
