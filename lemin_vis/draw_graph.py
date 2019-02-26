@@ -66,10 +66,11 @@ class Lemon:
                 self.add_room(lines[n], start_end)
             # start_end = 0
             n+=1
-        while n < num_lines and '-' in lines[n]:
-            if lines[n][0] != 'L':
+        while n < num_lines and ('-' in lines[n] or lines[n] == ''):
+            # print('lines[' + str(n) + '] = \'' + lines[n] + '\'')
+            if lines[n] != '' and lines[n][0] != 'L':
                 self.add_edge(lines[n])
-            else:
+            elif lines[n] != '' and lines[n][0] == 'L':
                 self.antmoves.append(lines[n])
             n+=1
         tmp = {}
