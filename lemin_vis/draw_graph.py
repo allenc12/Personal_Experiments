@@ -20,7 +20,7 @@ READ_ERR = 5
 
 class Lemon:
 
-    def __init__(self):
+    def __init__(self, patharg):
         self.name = ""
         self.G = nx.Graph()
         self.num_ants = 0
@@ -29,52 +29,60 @@ class Lemon:
         self.antmoves = []
         self.nodes_colors = []
         self.edges_colors = []
+        self.paths = patharg
 
     def add_room(self, line, start_end):
         n = line.split(' ')
         if start_end == -1 and 'red' not in self.nodes_colors:
-            self.G.add_node(n[0],weight=2)
+            self.G.add_node(n[0],weight=2,size=100,color='red',alpha=1)
             self.nodes_colors.append('red')
         elif start_end == 1 and 'green' not in self.nodes_colors:
-            self.G.add_node(n[0],weight=2)
+            self.G.add_node(n[0],weight=2,size=100,color='green',alpha=1)
             self.nodes_colors.append('green')
         else:
-            self.G.add_node(n[0],weight=2)
+            self.G.add_node(n[0],weight=1,size=10,color='grey',alpha=0.1)
             self.nodes_colors.append('grey')
 
     def add_edge(self, line):
         n = line.split('-')
-        self.G.add_edge(n[0], n[1], weight=1)
-        self.edges_colors.append('grey')
+        if n[0] in self.paths and n[1] in self.paths:
+            self.G.add_edge(n[0], n[1], weight=2,color='grey',alpha=1)
+            self.edges_colors.append('cyan')
+        else:
+            self.G.add_edge(n[0], n[1], weight=1,color='grey',alpha=0.1)
+            self.edges_colors.append('grey')
 
     def read_input(self, f):
         start_end = 0
         lines = [line.rstrip('\n') for line in f]
         num_lines = len(lines)
         n = 0
-        while n < num_lines and '-' not in lines[n]:
+        for line in lines:
             if n == 0:
-                self.num_ants = int(lines[0])
-            elif lines[n][0] == '#':
-                if lines[n] == '##start':
+                self.num_ants = int(line)
+            elif line != '' and line[0] == '#':
+                if line == '##start':
                     start_end = 1
-                elif lines[n] == '##end':
+                elif line == '##end':
                     start_end = -1
                 else:
                     start_end = 0
-            else:
-                self.add_room(lines[n], start_end)
-            # start_end = 0
+            elif line.count(' ') == 2:
+                self.add_room(line, start_end)
+            elif '-' in line and line[0] != 'L':
+                self.add_edge(line)
+            elif '-' in line and line[0] == 'L':
+                self.antmoves.append(line)
             n+=1
-        while n < num_lines and ('-' in lines[n] or lines[n] == ''):
-            print('lines[' + str(n) + '] = \'' + lines[n] + '\'')
-            if lines[n] != '' and lines[n][0] != 'L':
-                self.add_edge(lines[n])
-            elif lines[n] != '' and lines[n][0] == 'L':
-                self.antmoves.append(lines[n])
-            n+=1
+        print('num_lines: ' + str(num_lines) + ' n: ' + str(n))
+        # print('lines[' + str(n) + '] = \'' + lines[n] + '\'')
+        # while n < num_lines:
+        #     if len(lines[n]) > 1 and lines[n][0] != 'L':
+        #         self.add_edge(lines[n])
+        #     elif len(lines[n]) > 1 and lines[n][0] == 'L':
+        #         self.antmoves.append(lines[n])
+        #     n+=1
         tmp = {}
-        print("num_moves: " + str(len(self.antmoves)) + " tmp: " + str(len(tmp)))
         for line in self.antmoves:
             for move in line.split(' '):
                 a = move.split('-')
@@ -82,27 +90,32 @@ class Lemon:
                     tmp[a[0]] = [a[1]]
                 else:
                     tmp[a[0]].append(a[1])
-        # self.antmoves = tmp
-        print("num_moves: " + str(len(self.antmoves)) + " tmp: " + str(len(tmp)))
+        res = []
+        for bep in tmp:
+            if tmp[bep] not in res:
+                res.append(tmp[bep])
+        self.antmoves = res
         print("num_edges: " + str(len(self.G.edges)) + ' ecolors: ' + str(len(self.edges_colors)))
         print("num_nodes: " + str(len(self.G.nodes)) + ' ncolors: ' + str(len(self.nodes_colors)))
 
     def draw_graph(self):
-        print(self.antmoves)
-        input()
-        epath = [ (u,v) for (u,v,d) in self.G.edges(data=True) if d['weight'] == 2 ]
+        # print(self.antmoves)
+        epath = [ (u,v) for (u,v,d) in self.G.edges(data=True) if d['weight'] == 2 or (u in self.paths and v in self.paths) ]
         print("len(epath): " + str(len(epath)))
         egarb = [ (u,v) for (u,v,d) in self.G.edges(data=True) if d['weight'] == 1 ]
         print("len(egarb): " + str(len(egarb)))
-        npath = [ n for (n) in self.G.nodes() if n in epath ]
+        npath = [ n for (n,d) in self.G.nodes(data=True) if d['weight'] == 2 or n in epath ]
+        for node in self.G.nodes():
+            if node in self.antmoves and node not in npath:
+                npath.append(node)
         print("len(npath): " + str(len(npath)))
-        ngarb = [ n for (n) in self.G.nodes() if n not in epath ]
+        ngarb = [ n for (n) in self.G.nodes() if n not in npath ]
         print("len(ngarb): " + str(len(ngarb)))
         pos = nx.spectral_layout(self.G)
-        nx.draw_networkx_edges(self.G, pos, edgelist=epath, width=1, alpha=1, edge_color='b')
-        nx.draw_networkx_edges(self.G, pos, edgelist=egarb, width=0.5, alpha=0.1, edge_color='gray')
-        nx.draw_networkx_nodes(self.G, pos, nodelist=npath, node_size=50, alpha=1.0, node_color='orange', with_labels=False)
-        nx.draw_networkx_nodes(self.G, pos, nodelist=ngarb, node_size=5, alpha=0.01, node_color='gray', with_labels=False)
+        nx.draw_networkx_edges(self.G, pos, edgelist=epath, width=1, alpha=0.5, edge_color='blue')
+        # nx.draw_networkx_edges(self.G, pos, edgelist=egarb, width=0.5, alpha=0.1, edge_color='gray')
+        nx.draw_networkx_nodes(self.G, pos, nodelist=npath, node_size=20, alpha=1.0, node_color='purple', with_labels=False)
+        # nx.draw_networkx_nodes(self.G, pos, nodelist=ngarb, node_size=5, alpha=0.01, node_color='gray', with_labels=False)
         plt.show()
 
 def print_err(code):
@@ -412,7 +425,7 @@ def big():
         'Uzg2', 'Svu9', 'Xjv3', 'Afs5', 'Ngk2', 'Eny8', 'Rkf4', 'H_w3', 'Rhi5',
         'Ox_7'
     ]]
-    lb = Lemon()
+    lb = Lemon(patharg=bpaths)
     f = open('big_out')
     lb.read_input(f)
     i = 0
