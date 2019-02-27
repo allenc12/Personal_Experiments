@@ -4,23 +4,23 @@ try:
     import json
     import networkx as nx
     import contextlib
+
     with contextlib.redirect_stdout(None):
-        import scipy
         import matplotlib.pyplot as plt
-except:
+except ModuleNotFoundError:
     print("Ensure that the required modules are installed")
     exit(1)
 
-#lines = [line.rstrip('\n') for line in file]
 ANTS_ERR = 1
 ROOM_ERR = 2
 CONN_ERR = 3
 MOVE_ERR = 4
 READ_ERR = 5
 
+
 class Lemon:
 
-    def __init__(self, patharg):
+    def __init__(self):
         self.name = ""
         self.G = nx.Graph()
         self.num_ants = 0
@@ -29,59 +29,50 @@ class Lemon:
         self.antmoves = []
         self.nodes_colors = []
         self.edges_colors = []
-        self.paths = patharg
 
     def add_room(self, line, start_end):
         n = line.split(' ')
         if start_end == -1 and 'red' not in self.nodes_colors:
-            self.G.add_node(n[0],weight=2,size=100,color='red',alpha=1)
+            self.G.add_node(n[0])
             self.nodes_colors.append('red')
         elif start_end == 1 and 'green' not in self.nodes_colors:
-            self.G.add_node(n[0],weight=2,size=100,color='green',alpha=1)
+            self.G.add_node(n[0])
             self.nodes_colors.append('green')
         else:
-            self.G.add_node(n[0],weight=1,size=10,color='grey',alpha=0.1)
+            self.G.add_node(n[0])
             self.nodes_colors.append('grey')
 
     def add_edge(self, line):
         n = line.split('-')
-        if n[0] in self.paths and n[1] in self.paths:
-            self.G.add_edge(n[0], n[1], weight=2,color='grey',alpha=1)
-            self.edges_colors.append('cyan')
-        else:
-            self.G.add_edge(n[0], n[1], weight=1,color='grey',alpha=0.1)
-            self.edges_colors.append('grey')
+        self.G.add_edge(n[0], n[1])
+        self.edges_colors.append('grey')
 
     def read_input(self, f):
         start_end = 0
         lines = [line.rstrip('\n') for line in f]
         num_lines = len(lines)
         n = 0
-        for line in lines:
+        while n < num_lines and '-' not in lines[n]:
             if n == 0:
-                self.num_ants = int(line)
-            elif line != '' and line[0] == '#':
-                if line == '##start':
+                self.num_ants = int(lines[0])
+            elif lines[n][0] == '#':
+                if lines[n] == '##start':
                     start_end = 1
-                elif line == '##end':
+                elif lines[n] == '##end':
                     start_end = -1
                 else:
                     start_end = 0
-            elif line.count(' ') == 2:
-                self.add_room(line, start_end)
-            elif '-' in line and line[0] != 'L':
-                self.add_edge(line)
-            elif '-' in line and line[0] == 'L':
-                self.antmoves.append(line)
+            else:
+                self.add_room(lines[n], start_end)
+            # start_end = 0
             n+=1
-        print('num_lines: ' + str(num_lines) + ' n: ' + str(n))
-        # print('lines[' + str(n) + '] = \'' + lines[n] + '\'')
-        # while n < num_lines:
-        #     if len(lines[n]) > 1 and lines[n][0] != 'L':
-        #         self.add_edge(lines[n])
-        #     elif len(lines[n]) > 1 and lines[n][0] == 'L':
-        #         self.antmoves.append(lines[n])
-        #     n+=1
+        while n < num_lines and ('-' in lines[n] or lines[n] == ''):
+            # print('lines[' + str(n) + '] = \'' + lines[n] + '\'')
+            if lines[n] != '' and lines[n][0] != 'L':
+                self.add_edge(lines[n])
+            elif lines[n] != '' and lines[n][0] == 'L':
+                self.antmoves.append(lines[n])
+            n+=1
         tmp = {}
         for line in self.antmoves:
             for move in line.split(' '):
@@ -90,33 +81,14 @@ class Lemon:
                     tmp[a[0]] = [a[1]]
                 else:
                     tmp[a[0]].append(a[1])
-        res = []
-        for bep in tmp:
-            if tmp[bep] not in res:
-                res.append(tmp[bep])
-        self.antmoves = res
+        self.antmoves = tmp
         print("num_edges: " + str(len(self.G.edges)) + ' ecolors: ' + str(len(self.edges_colors)))
         print("num_nodes: " + str(len(self.G.nodes)) + ' ncolors: ' + str(len(self.nodes_colors)))
 
     def draw_graph(self):
-        # print(self.antmoves)
-        epath = [ (u,v) for (u,v,d) in self.G.edges(data=True) if d['weight'] == 2 or (u in self.paths and v in self.paths) ]
-        print("len(epath): " + str(len(epath)))
-        egarb = [ (u,v) for (u,v,d) in self.G.edges(data=True) if d['weight'] == 1 ]
-        print("len(egarb): " + str(len(egarb)))
-        npath = [ n for (n,d) in self.G.nodes(data=True) if d['weight'] == 2 or n in epath ]
-        for node in self.G.nodes():
-            if node in self.antmoves and node not in npath:
-                npath.append(node)
-        print("len(npath): " + str(len(npath)))
-        ngarb = [ n for (n) in self.G.nodes() if n not in npath ]
-        print("len(ngarb): " + str(len(ngarb)))
-        pos = nx.spectral_layout(self.G)
-        nx.draw_networkx_edges(self.G, pos, edgelist=epath, width=1, alpha=0.5, edge_color='blue')
-        # nx.draw_networkx_edges(self.G, pos, edgelist=egarb, width=0.5, alpha=0.1, edge_color='gray')
-        nx.draw_networkx_nodes(self.G, pos, nodelist=npath, node_size=20, alpha=1.0, node_color='purple', with_labels=False)
-        # nx.draw_networkx_nodes(self.G, pos, nodelist=ngarb, node_size=5, alpha=0.01, node_color='gray', with_labels=False)
+        nx.draw_networkx(self.G, pos=nx.spectral_layout(self.G), node_size=10,node_color=self.nodes_colors, edge_color=self.edges_colors, with_labels=False)
         plt.show()
+
 
 def print_err(code):
     if code == ANTS_ERR:
@@ -132,8 +104,9 @@ def print_err(code):
     pygame.quit()
     sys.exit(1)
 
+
 def lem_to_json(filename):
-    f = open("gen_flow_one", 'r')
+    f = open(filename, 'r')
     lines = [line.rstrip('\n') for line in f]
     l = 1
     g = 0
@@ -159,9 +132,10 @@ def lem_to_json(filename):
             tmp = lines[l].split('-')
             edges.append({"source": tmp[0], "target": tmp[1], "value": 2})
         l += 1
-    out = open("flone_json", 'x')
+    out = open(filename + ".json", 'x')
     out.write(json.JSONEncoder().encode({"nodes": nodes, "links": edges})+'\n')
     out.close()
+
 
 """
 ---flone---
@@ -184,7 +158,7 @@ col_path = ['green','red','orange','magenta','cyan','brown','blue','black',
             '#f08c00','#308bc0','#f9c030','grey']
 # h = ['Xgj7','I_w2']
 def soup():
-    h = ['Ixl3','Eoi4']
+    h = ['Ixl3', 'Eoi4']
     paths = [[
         'Ruy5', 'Jtw5', 'Nya5', 'Vxb5', 'Amz7', 'A_p4', 'Jxj6', 'Gml4', 'Azz8',
         'Nrl0', 'Bbq5', 'Vyn4', 'Ar_2', 'Eja8', 'Fo_7', 'Nn_7', 'Oaf5', 'Ava9',
@@ -306,7 +280,8 @@ def soup():
         'W_d1', 'Y_u9', 'Srq2', 'Ivh0', 'Yng9', 'B_v1', 'Tsz8', 'Tn_6', 'Iot0',
         'Pkw4', 'Zun2', 'Bfh5', 'Fyq5', 'Atk4', 'Xai3', 'Tlq5', 'X_z2', 'Mga5',
         'Qli6', 'Fgo6', 'Ycd7', 'Gsr4', 'Jkh0', 'Krg5', 'Svj7', 'Eoi4'
-    ]]
+    ]
+    ]
     G = nx.read_edgelist("soup-edgelist", delimiter='-', nodetype=str)
     i = 0
     ncolor = []
@@ -370,24 +345,6 @@ def soup():
             edges_remove.append(edge)
             ecolor.append(col_path[11])
             G[edge[0]][edge[1]]['weight'] = 1
-    # G.remove_edges_from(edges_remove)
-    # G.remove_nodes_from(nodes_remove)
-    # edges_remove = set(edges_remove)
-    # k = 0
-    # for i in range(len(edges_remove)):
-    #     for j in range(len(edges_remove)):
-    #         if i != j and edges_remove[i] == edges_remove[j]:
-    #             G.remove_edge(edges_remove[j])
-    #             G.remove_edge(edges_remove[i])
-    #             k += 1
-    # newcolors = []
-    # for ec in ecolor:
-    #     if ec != "grey":
-    #         newcolors.append(ec)
-    #     else:
-    #         G.remove_node(edge[0])
-    #         G.remove_node(edge[1])
-    #         G.remove_nodes_from(edge)
     num_edges = len(G.edges)
     num_nodes = len(G.nodes)
     print("num_nodes: " + str(num_nodes))
@@ -395,8 +352,9 @@ def soup():
     nx.draw_networkx(G, pos=nx.spectral_layout(G), node_size=10, node_color=ncolor, edge_color=ecolor, with_labels=False)
     plt.show()
 
+
 def big():
-    bh = ['Pqz1','Ox_7']
+    bh = ['Pqz1', 'Ox_7']
     bpaths = [[
         'Ouc9', 'Mgt4', 'Grq1', 'Xdu6', 'X_j2', 'Jdz3', 'Pmf9', 'Ohf5', 'Ref9',
         'Tfv0', 'Kux7', 'Xwa7', 'Kky8', 'Rrc3', 'Epw2', 'Vak8', 'Yiq5', 'Ijy6',
@@ -424,13 +382,12 @@ def big():
         'Qh_0', 'Nur3', 'Mtd2', 'Jin7', 'Dd_4', 'Spj0', 'Ztz6', 'A_f8', 'V_k9',
         'Uzg2', 'Svu9', 'Xjv3', 'Afs5', 'Ngk2', 'Eny8', 'Rkf4', 'H_w3', 'Rhi5',
         'Ox_7'
-    ]]
-    lb = Lemon(patharg=bpaths)
-    f = open('big_out')
-    lb.read_input(f)
+    ]
+    ]
+    G = nx.read_edgelist("big-edgelist", delimiter='-', nodetype=str)
     i = 0
     ncolor = []
-    for node in lb.G.nodes:
+    for node in G.nodes:
         if node == bh[0]:
             ncolor.append(col_path[0])
         elif node == bh[1]:
@@ -446,24 +403,25 @@ def big():
         i += 1
     ecolor = []
     edges_remove = []
-    for edge in lb.G.edges:
+    for edge in G.edges:
         if (edge[0] in bpaths[0] and edge[1] in bpaths[0]) or (edge[0] in bh and edge[1] in bpaths[0]) or (edge[0] in bpaths[0] and edge[1] in bh):
             ecolor.append(col_path[2])
-            lb.G[edge[0]][edge[1]]['weight'] = 2
+            G[edge[0]][edge[1]]['weight'] = 2
         elif (edge[0] in bpaths[1] and edge[1] in bpaths[1]) or (edge[0] in bh and edge[1] in bpaths[1]) or (edge[0] in bpaths[1] and edge[1] in bh):
             ecolor.append(col_path[3])
-            lb.G[edge[0]][edge[1]]['weight'] = 2
+            G[edge[0]][edge[1]]['weight'] = 2
         elif (edge[0] in bpaths[2] and edge[1] in bpaths[2]) or (edge[0] in bh and edge[1] in bpaths[2]) or (edge[0] in bpaths[2] and edge[1] in bh):
             ecolor.append(col_path[4])
-            lb.G[edge[0]][edge[1]]['weight'] = 2
+            G[edge[0]][edge[1]]['weight'] = 2
         else:
+            edges_remove.append(edge)
             ecolor.append(col_path[11])
-            lb.G[edge[0]][edge[1]]['weight'] = 1
-    num_edges = len(lb.G.edges)
-    num_nodes = len(lb.G.nodes)
-    print("num_nodes: " + str(num_nodes))
-    print("num_edges: " + str(num_edges) + " len(ecolor): " + str(len(ecolor)))
-    lb.draw_graph()
+            G[edge[0]][edge[1]]['weight'] = 1
+    print("num_nodes: " + str(len(G.edges)) + " ncolor: " + str(len(ncolor)))
+    print("num_edges: " + str(len(G.nodes)) + " ecolor: " + str(len(ecolor)))
+    nx.draw_networkx(G, pos=nx.spectral_layout(G), node_size=10, node_color=ncolor, edge_color=ecolor, with_labels=False)
+    plt.show()
+
 
 def main():
     loops = Lemon()
@@ -487,6 +445,7 @@ def main():
         except FileNotFoundError:
             print_err(READ_ERR)
         #TODO: Lemon.draw_graph()
+
 
 if __name__ == '__main__':
     main()

@@ -2,47 +2,48 @@
 
 try:
     import sys
-    import random
     import re
-    import networkx as nx
     import pytweening
     import contextlib
+
     with contextlib.redirect_stdout(None):
         import pygame
         from pygame.locals import *
-except:
+except ModuleNotFoundError:
     print("Import error")
-    print("""Please make sure these libraries are correctly available:
+    print(
+        """Please make sure these libraries are correctly available:
 * pygame
 * pytweening
-* networkx""")
+* networkx"""
+    )
     exit(1)
 
 FPS = 30
 
 #            R    G    B
-GRAY     = (100, 100, 100)
-NAVYBLUE = ( 60,  60, 100)
-WHITE    = (255, 255, 255)
-BLACK    = (  0,   0,   0)
-RED      = (255,   0,   0)
-GREEN    = (  0, 255,   0)
-BLUE     = (  0,   0, 255)
-YELLOW   = (255, 255,   0)
-PURPLE   = (255,   0, 255)
-CYAN     = (  0, 255, 255)
-VIOLET   = (110,  60, 135)
-DGREEN   = (165, 105, 178)
-MUSTARD  = (229, 137, 100)
-ORANGE   = (206,  90,  57)
-DPURPLE  = ( 41,  50,  65)
+GRAY = (100, 100, 100)
+NAVYBLUE = (60, 60, 100)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+PURPLE = (255, 0, 255)
+CYAN = (0, 255, 255)
+VIOLET = (110, 60, 135)
+DGREEN = (165, 105, 178)
+MUSTARD = (229, 137, 100)
+ORANGE = (206, 90, 57)
+DPURPLE = (41, 50, 65)
 
-GREEN    = ( 79, 255, 151)
-DGREEN   = ( 15,  91,  82)
-PINK     = (220,  40,  90)
-DPINK    = (111,  29,  74)
+GREEN = (79, 255, 151)
+DGREEN = (15, 91, 82)
+PINK = (220, 40, 90)
+DPINK = (111, 29, 74)
 
-BGCOLOR = (245,222,179)
+BGCOLOR = (245, 222, 179)
 ANTCOLOR = BLACK
 # ROOMCOLOR = PURPLE
 ROOMCOLOR = (165, 27, 27)
@@ -61,8 +62,8 @@ READ_ERR = 16
 WINDOWWIDTH = 1000
 WINDOWHEIGHT = 1000
 
-class Ant:
 
+class Ant:
     def __init__(self, name, start):
         self.name = name
         self.x, self.y = start
@@ -72,10 +73,12 @@ class Ant:
         self.step = 1
 
     def __str__(self):
-        return ("Ant name %s x %f y %d" % (self.name, self.x, self.y))
+        return "Ant name %s x %f y %d" % (self.name, self.x, self.y)
 
     def start_move(self, end_coords):
-        self.move_list = pytweening.getLine(self.x, self.y, end_coords[0], end_coords[1])
+        self.move_list = pytweening.getLine(
+            self.x, self.y, end_coords[0], end_coords[1]
+        )
         self.move_list.append(end_coords)
 
     def move(self, step=1, instamove=0):
@@ -97,8 +100,8 @@ class Ant:
             self.x, self.y = self.move_list[self.n]
             return 1
 
-class Room:
 
+class Room:
     def __init__(self, name, coords, roomsize, start_end=0):
         self.name = name
         self.x, self.y = coords
@@ -107,16 +110,21 @@ class Room:
         self.disp_x = self.x * 5
         self.disp_y = self.y * 5
         self.roomsize = roomsize
-        self.center = (self.disp_x + self.roomsize/ 2, self.disp_y + self.roomsize / 2)
+        self.center = (self.disp_x + self.roomsize / 2, self.disp_y + self.roomsize / 2)
 
     def __str__(self):
-        return ("Room %s start_end %d pos (%d, %d)" % (self.name, self.start_end, self.x, self.y))
+        return "Room %s start_end %d pos (%d, %d)" % (
+            self.name,
+            self.start_end,
+            self.x,
+            self.y,
+        )
 
     def add_conn(new):
         self.conns[new.name] = new
 
-class Game:
 
+class Game:
     def __init__(self):
         pygame.init()
         pygame.key.set_repeat(150, 5)
@@ -142,7 +150,13 @@ class Game:
 
     def __str__(self):
         try:
-            return "Num_ants %d max_x %d max_y %d min_x %d min_y %d" % (self.num_ants, self.room_max_x, self.room_max_y, self.room_min_x, self.room_min_y)
+            return "Num_ants %d max_x %d max_y %d min_x %d min_y %d" % (
+                self.num_ants,
+                self.room_max_x,
+                self.room_max_y,
+                self.room_min_x,
+                self.room_min_y,
+            )
         except TypeError:
             return "Type error"
 
@@ -154,14 +168,18 @@ class Game:
                 if self.event.key == K_ESCAPE or self.event.key == K_q:
                     self.quit()
                 if self.event.key == K_RIGHT and not self.ants_moving:
-                    self.move_num = min(self.move_num + self.inc, len(self.ant_moves) - 1)
+                    self.move_num = min(
+                        self.move_num + self.inc, len(self.ant_moves) - 1
+                    )
                 if self.event.key == K_UP:
                     for n in self.antmap:
                         self.antmap[n].step += 1
                 if self.event.key == K_DOWN:
                     for n in self.antmap:
                         self.antmap[n].step = max(self.antmap[n].step - 1, 1)
-                if (self.event.key == K_HOME or self.event.key == K_r) and not self.ants_moving:
+                if (
+                    self.event.key == K_HOME or self.event.key == K_r
+                ) and not self.ants_moving:
                     for n in self.antmap:
                         self.antmap[n].x, self.antmap[n].y = self.start.center
                         self.antmap[n].n = 0
@@ -174,7 +192,7 @@ class Game:
                     self.instamove = ~self.instamove
 
     def add_conn(self, line):
-        n = line.split('-')
+        n = line.split("-")
         try:
             self.roommap[n[0]].conns[n[1]] = self.roommap[n[1]]
             self.roommap[n[1]].conns[n[0]] = self.roommap[n[0]]
@@ -182,19 +200,19 @@ class Game:
             print_err(CONN_ERR)
 
     def add_room(self, line, start_end):
-        n = line.split(' ')
+        n = line.split(" ")
         new = Room(n[0], (int(n[1]), int(n[2])), self.roomsize, start_end)
         if start_end == -1:
             self.start = new
         elif start_end == 1:
             self.end = new
-        if self.room_max_y == None or self.room_max_y < new.y:
+        if self.room_max_y is None or self.room_max_y < new.y:
             self.room_max_y = new.y
-        if self.room_max_x == None or self.room_max_x < new.x:
+        if self.room_max_x is None or self.room_max_x < new.x:
             self.room_max_x = new.x
-        if self.room_min_y == None or new.y < self.room_min_y:
+        if self.room_min_y is None or new.y < self.room_min_y:
             self.room_min_y = new.y
-        if self.room_min_x == None or new.x < self.room_max_x:
+        if self.room_min_x is None or new.x < self.room_max_x:
             self.room_min_x = new.x
         try:
             if self.roommap[new.name]:
@@ -210,10 +228,30 @@ class Game:
                 room_color = ENDCOLOR
             else:
                 room_color = ROOMCOLOR
-            pygame.draw.rect(self.surf, room_color, (self.roommap[rname].disp_x, self.roommap[rname].disp_y, self.roommap[rname].roomsize, self.roommap[rname].roomsize))
+            pygame.draw.rect(
+                self.surf,
+                room_color,
+                (
+                    self.roommap[rname].disp_x,
+                    self.roommap[rname].disp_y,
+                    self.roommap[rname].roomsize,
+                    self.roommap[rname].roomsize,
+                ),
+            )
             if self.roommap[rname].start_end == -1:
                 rm = self.roommap[rname]
-                pygame.draw.lines(self.surf, MUSTARD, True, ((rm.disp_x, rm.disp_y), (rm.disp_x + rm.roomsize, rm.disp_y), (rm.disp_x + rm.roomsize, rm.disp_y + rm.roomsize), (rm.disp_x, rm.disp_y + rm.roomsize)), 3)
+                pygame.draw.lines(
+                    self.surf,
+                    MUSTARD,
+                    True,
+                    (
+                        (rm.disp_x, rm.disp_y),
+                        (rm.disp_x + rm.roomsize, rm.disp_y),
+                        (rm.disp_x + rm.roomsize, rm.disp_y + rm.roomsize),
+                        (rm.disp_x, rm.disp_y + rm.roomsize),
+                    ),
+                    3,
+                )
 
     def draw_connections(self):
         for rname in self.roommap:
@@ -236,10 +274,10 @@ class Game:
         except:
             print_err(ANTS_ERR)
         while n < linum and room_p.match(lines[n]):
-            if lines[n][0] == '#':
-                if lines[n] == '##start':
+            if lines[n][0] == "#":
+                if lines[n] == "##start":
                     start_end = -1
-                elif lines[n] == '##end':
+                elif lines[n] == "##end":
                     start_end = 1
                 n += 1
                 continue
@@ -249,13 +287,13 @@ class Game:
             n += 1
         conn_p = re.compile("(?:(?:^[a-zA-Z0-9_]+-[a-zA-Z0-9_]+$)|(?:^#))")
         while n < linum and conn_p.match(lines[n]):
-            if lines[n][0] == '#':
+            if lines[n][0] == "#":
                 pass
             else:
                 self.add_conn(lines[n])
             n += 1
         move_p = re.compile("^(?:L[0-9]+-[a-zA-Z0-9_]+ ?)+$")
-        if n == linum or lines[n] != '':
+        if n == linum or lines[n] != "":
             print_err(ANTS_ERR)
         n += 1
         while n < linum and move_p.match(lines[n]):
@@ -265,7 +303,7 @@ class Game:
             print_err(ANTS_ERR)
         self.ant_moves = [[]] + self.ant_moves
         for n in range(self.num_ants):
-            name = 'L' + str(n + 1)
+            name = "L" + str(n + 1)
             self.antmap[name] = Ant(name, self.start.center)
 
     def display_ant(self, ant):
@@ -285,7 +323,7 @@ class Game:
         line = self.ant_moves[self.move_num]
         if line == []:
             return
-        split_line = [n.split('-') for n in line.split(' ')]
+        split_line = [n.split("-") for n in line.split(" ")]
         for n in split_line:
             if len(n) != 2:
                 print_err(ANTS_ERR)
@@ -314,6 +352,7 @@ class Game:
             self.events()
             self.draw()
 
+
 def print_err(code):
     if code == ANTS_ERR:
         print("Ant error")
@@ -328,17 +367,20 @@ def print_err(code):
     pygame.quit()
     sys.exit(1)
 
+
 def main():
     if len(sys.argv) > 1:
         if sys.argv[1] == "--help":
-            print("""Navigation:
+            print(
+                """Navigation:
 Esc, Q  : quit visualizer
 Up      : increase ant speed
 Down    : decrease ant speed
 Right   : move ants
 0       : reset ant speed
 I       : toggle instant ant movement
-Home, R : reset""")
+Home, R : reset"""
+            )
             sys.exit()
         else:
             print("illegal option: %s" % (sys.argv[1]))
@@ -350,6 +392,7 @@ Home, R : reset""")
     except FileNotFoundError:
         print_err(READ_ERR)
     g.run()
+
 
 if __name__ == "__main__":
     main()
