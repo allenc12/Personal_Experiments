@@ -111,15 +111,15 @@ class Lemon:
         self.nodes.append(line)
         n = line.split(' ')
         if start_end == -1 and 'red' not in self.nodes_colors:
-            self.G.add_node(n[0])
+            self.G.add_node(n[0], weight=2)
             self.end = n[0]
             self.nodes_colors.append('red')
         elif start_end == 1 and 'green' not in self.nodes_colors:
-            self.G.add_node(n[0])
+            self.G.add_node(n[0], weight=2)
             self.start = n[0]
             self.nodes_colors.append('green')
         else:
-            self.G.add_node(n[0])
+            self.G.add_node(n[0], weight=1)
             self.nodes_colors.append('grey')
 
     def add_edge(self, line):
@@ -127,7 +127,7 @@ class Lemon:
             print("add_edge")
         self.connections.append(line)
         n = line.split('-')
-        self.G.add_edge(n[0], n[1], capacity=1)
+        self.G.add_edge(n[0], n[1], capacity=1, weight=1)
         self.edges_colors.append('grey')
 
     def add_ant(self, line):
@@ -205,12 +205,13 @@ class Lemon:
     def draw_graph(self):
         print(nx.info(self.G))
         flub = len(self.G.nodes)
-        if flub < 2000:
-            pos = nx.kamada_kawai_layout(self.G)
-        elif flub < 3500:
-            pos = nx.spectral_layout(self.G)
-        else:
-            pos = nx.spring_layout(self.G)
+        pos = nx.kamada_kawai_layout(self.G)
+        # if flub < 2000:
+        #     pos = nx.kamada_kawai_layout(self.G)
+        # elif flub < 3500:
+        #     pos = nx.spectral_layout(self.G)
+        # else:
+        #     pos = nx.spring_layout(self.G)
         draw_graph_nodes(self.G, self.paths, pos, col_path, self.draw_grey)
         draw_graph_edges(self.G, self.paths, pos, col_path, self.draw_grey)
         # nx.draw_networkx_labels(self.G, pos)
@@ -329,9 +330,10 @@ def souptxt(draw_grey):
     paths = [line.split(" ") for line in tmp]
     G = nx.read_edgelist("bingus/soup-edges", delimiter='-', nodetype=str)
     # pos = nx.kamada_kawai_layout(G)
-    pos = nx.kamada_kawai_layout(G)
+    pos = nx.spectral_layout(G)
     draw_graph_nodes(G, paths, pos, col_path, draw_grey)
     draw_graph_edges(G, paths, pos, col_path, draw_grey)
+    print(nx.info(G))
     plt.axis('off')
     plt.show()
 
