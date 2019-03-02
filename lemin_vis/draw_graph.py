@@ -2,13 +2,18 @@
 try:
     import sys
     import json
-    import networkx as nx
+    import cProfile, pstats, io
+    from pstats import SortKey
+    import argparse
     import contextlib
 
     with contextlib.redirect_stdout(None):
+        import networkx as nx
         import matplotlib.pyplot as plt
 except ModuleNotFoundError:
-    print("Ensure that the required modules are installed")
+    print("Ensure that the required modules are installed:"
+          "*networkx"
+          "*matplotlib")
     exit(1)
 
 ANTS_ERR = 1
@@ -75,7 +80,7 @@ def draw_graph_edges(G, paths, pos, col_path, draw_grey):
 
 
 class Lemon:
-    def __init__(self, name=None, G=None, draw_grey=None, debug=None):
+    def __init__(self, name=None, G=None, draw_grey=None, debug=None, pos=None):
         if name is None:
             self.name = "Graph"
         else:
@@ -92,6 +97,10 @@ class Lemon:
             self.debug = 0
         else:
             self.debug = debug
+        if pos is None:
+            self.pos = "spectral"
+        else:
+            self.pos = pos
         self.connections = []
         self.nodes = []
         self.start = None
@@ -128,7 +137,7 @@ class Lemon:
         self.connections.append(line)
         n = line.split('-')
         self.G.add_edge(n[0], n[1], capacity=1, weight=1)
-        self.edges_colors.append('grey')
+        self.edges_colors.append("grey")
 
     def add_ant(self, line):
         if self.debug == 2:
@@ -142,7 +151,7 @@ class Lemon:
 
     def read_input(self, argfile):
         start_end = 0
-        lines = [line.rstrip('\n') for line in argfile]
+        lines = [line.rstrip("\n") for line in argfile]
         num_lines = len(lines)
         if self.debug == 2:
             print("num_lines: " + str(num_lines))
@@ -204,14 +213,20 @@ class Lemon:
 
     def draw_graph(self):
         print(nx.info(self.G))
-        flub = len(self.G.nodes)
-        pos = nx.kamada_kawai_layout(self.G)
-        # if flub < 2000:
-        #     pos = nx.kamada_kawai_layout(self.G)
-        # elif flub < 3500:
-        #     pos = nx.spectral_layout(self.G)
-        # else:
-        #     pos = nx.spring_layout(self.G)
+        if self.pos == "spring":
+            pos = nx.spring_layout(self.G)
+        elif self.pos == "circular":
+            pos = nx.circular_layout(self.G)
+        elif self.pos == "kamada":
+            pos = nx.kamada_kawai_layout(self.G)
+        elif self.pos == "random":
+            pos = nx.random_layout(self.G)
+        elif self.pos == "shell":
+            pos = nx.shell_layout(self.G)
+        elif self.pos == "spectral":
+            pos = nx.spectral_layout(self.G)
+        else:
+            pos = nx.spring_layout(self.G)
         draw_graph_nodes(self.G, self.paths, pos, col_path, self.draw_grey)
         draw_graph_edges(self.G, self.paths, pos, col_path, self.draw_grey)
         # nx.draw_networkx_labels(self.G, pos)
@@ -352,28 +367,43 @@ def big(draw_grey):
 
 
 def main():
-    draw_grey = False
+    pr = cProfile.Profile()
+    pr.enable()
+    # p = argparse.ArgumentParser()
+    # p.add_argument("layout", help="specify graph layout")
+    # args
+    dg = False
+    layout = None
     if len(sys.argv) > 1:
-        if len(sys.argv) > 2 and sys.argv[2] == "--draw-grey":
-            draw_grey = True
-            loops = Lemon(debug=0, draw_grey=True)
-        else:
-            loops = Lemon(debug=0, draw_grey=False)
-        print("draw_grey: " + str(draw_grey))
+        if "--draw-grey" in sys.argv:
+            dg = True
+        if "--layout=spectral" in sys.argv:
+            layout = "spectral"
+        if "--layout=kamada" in sys.argv:
+            layout = "kamada"
+        if "--layout=spring" in sys.argv:
+            layout = "spring"
+        if "--layout=circular" in sys.argv:
+            layout = "circular"
+        if "--layout=shell" in sys.argv:
+            layout = "shell"
+        if "--layout=random" in sys.argv:
+            layout = "random"
+        loops = Lemon(name=sys.argv[1], debug=0, draw_grey=dg, pos=layout)
         if sys.argv[1] == 'big':
-            big(draw_grey)
+            big(dg)
         elif sys.argv[1] == 'soup':
-            soup(draw_grey)
+            soup(dg)
         elif sys.argv[1] == 'flonetxt':
-            flonetxt(draw_grey)
+            flonetxt(dg)
         elif sys.argv[1] == 'fltentxt':
-            fltentxt(draw_grey)
+            fltentxt(dg)
         elif sys.argv[1] == 'flthousandtxt':
-            flthousandtxt(draw_grey)
+            flthousandtxt(dg)
         elif sys.argv[1] == 'bigtxt':
-            bigtxt(draw_grey)
+            bigtxt(dg)
         elif sys.argv[1] == 'souptxt':
-            souptxt(draw_grey)
+            souptxt(dg)
         else:
             try:
                 f = open(sys.argv[1])
@@ -385,11 +415,17 @@ def main():
                 print_err(READ_ERR)
     else:
         try:
+            loops = Lemon(name="stdin-graph", debug=0, draw_grey=True, pos=layout)
             loops.read_input(sys.stdin)
             loops.draw_graph()
         except FileNotFoundError:
             print_err(READ_ERR)
-        #TODO: Lemon.draw_graph()
+    pr.disable()
+    s = io.StringIO()
+    sortby = SortKey.CUMULATIVE
+    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+    ps.print_stats()
+    print(s.getvalue())
 
 
 if __name__ == '__main__':
