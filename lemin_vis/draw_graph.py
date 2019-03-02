@@ -209,7 +209,7 @@ def lem_to_json(filename):
 ##end   Eoi4 9 9
 """
 col_path = ['green','red','orange','magenta','cyan','brown','blue','black',
-            '#f08c00','#308bc0','#f9c030','grey']
+            '#f08c00','#308bc0','#f9c030','grey', '#23f012']
 def soup():
     f = open("soup_paths", "r")
     tmp = [line.rstrip("\n") for line in f]
@@ -299,6 +299,175 @@ def soup():
     plt.show()
 
 
+def flonetxt():
+    f = open("bingus/flow-one-paths")
+    tmp = [line.rstrip("\n") for line in f]
+    f.close()
+    sted = tmp[0].split(" ")
+    paths = [line.split(" ") for line in tmp[1:]]
+    G = nx.read_edgelist("bingus/flow-one-edges", delimiter='-', nodetype=str)
+    ncolor = []
+    for node in G.nodes:
+        if node == sted[0]:
+            ncolor.append(col_path[0])
+        elif node == sted[1]:
+            ncolor.append(col_path[1])
+        elif node in paths[0]:
+            ncolor.append(col_path[2])
+        else:
+            ncolor.append(col_path[11])
+    ecolor = []
+    for edge in G.edges:
+        if (edge[0] in paths[0] and edge[1] in paths[0]) or (edge[0] in sted and edge[1] in paths[0]) or (edge[0] in paths[0] and edge[1] in sted):
+            ecolor.append(col_path[2])
+            G[edge[0]][edge[1]]['weight'] = 2
+        else:
+            ecolor.append(col_path[11])
+            G[edge[0]][edge[1]]['weight'] = 1
+    print("num_nodes: " + str(len(G.edges)) + " ncolor: " + str(len(ncolor)))
+    print("num_edges: " + str(len(G.nodes)) + " ecolor: " + str(len(ecolor)))
+    nx.draw_networkx(
+        G,
+        pos=nx.spring_layout(G),
+        node_size=10,
+        node_color=ncolor,
+        edge_color=ecolor,
+        with_labels=False
+    )
+    plt.show()
+
+
+def fltentxt():
+    f = open("bingus/flow-ten-paths")
+    tmp = [line.rstrip("\n") for line in f]
+    f.close()
+    sted = tmp[0].split(" ")
+    paths = [line.split(" ") for line in tmp[1:]]
+    G = nx.read_edgelist("bingus/flow-ten-edges", delimiter='-', nodetype=str)
+    ncolor = []
+    for node in G.nodes:
+        if node == sted[0]:
+            ncolor.append(col_path[0])
+        elif node == sted[1]:
+            ncolor.append(col_path[1])
+        elif node in paths[0]:
+            ncolor.append(col_path[2])
+        elif node in paths[1]:
+            ncolor.append(col_path[3])
+        elif node in paths[2]:
+            ncolor.append(col_path[4])
+        elif node in paths[3]:
+            ncolor.append(col_path[5])
+        else:
+            ncolor.append(col_path[11])
+    ecolor = []
+    for edge in G.edges:
+        if (edge[0] in paths[0] and edge[1] in paths[0]) or (edge[0] in sted and edge[1] in paths[0]) or (edge[0] in paths[0] and edge[1] in sted):
+            ecolor.append(col_path[2])
+            G[edge[0]][edge[1]]['weight'] = 2
+        elif (edge[0] in paths[1] and edge[1] in paths[1]) or (edge[0] in sted and edge[1] in paths[1]) or (edge[0] in paths[1] and edge[1] in sted):
+            ecolor.append(col_path[3])
+            G[edge[0]][edge[1]]['weight'] = 2
+        elif (edge[0] in paths[2] and edge[1] in paths[2]) or (edge[0] in sted and edge[1] in paths[2]) or (edge[0] in paths[2] and edge[1] in sted):
+            ecolor.append(col_path[4])
+            G[edge[0]][edge[1]]['weight'] = 2
+        elif (edge[0] in paths[3] and edge[1] in paths[3]) or (edge[0] in sted and edge[1] in paths[3]) or (edge[0] in paths[3] and edge[1] in sted):
+            ecolor.append(col_path[5])
+            G[edge[0]][edge[1]]['weight'] = 2
+        else:
+            ecolor.append(col_path[11])
+            G[edge[0]][edge[1]]['weight'] = 1
+    print("num_nodes: " + str(len(G.edges)) + " ncolor: " + str(len(ncolor)))
+    print("num_edges: " + str(len(G.nodes)) + " ecolor: " + str(len(ecolor)))
+    nx.draw_networkx(
+        G,
+        pos=nx.spectral_layout(G),
+        node_size=10,
+        node_color=ncolor,
+        edge_color=ecolor,
+        with_labels=False
+    )
+    plt.show()
+
+
+def flthousandtxt():
+    f = open("bingus/flow-thousand-paths", "r")
+    tmp = [line.rstrip("\n") for line in f]
+    f.close()
+    h = tmp[0].split(" ")
+    paths = [line.split(" ") for line in tmp[1:]]
+    G = nx.read_edgelist("bingus/flow-thousand-edges", delimiter='-', nodetype=str)
+    ncolor = []
+    for node in G.nodes:
+        if node == h[0]:
+            ncolor.append(col_path[0])
+        elif node == h[1]:
+            ncolor.append(col_path[1])
+        elif node in paths[0]:
+            ncolor.append(col_path[2])
+        elif node in paths[1]:
+            ncolor.append(col_path[3])
+        elif node in paths[2]:
+            ncolor.append(col_path[4])
+        elif node in paths[3]:
+            ncolor.append(col_path[5])
+        elif node in paths[4]:
+            ncolor.append(col_path[6])
+        elif node in paths[5]:
+            ncolor.append(col_path[7])
+        elif node in paths[6]:
+            ncolor.append(col_path[8])
+        elif node in paths[7]:
+            ncolor.append(col_path[9])
+        elif node in paths[8]:
+            ncolor.append(col_path[10])
+        else:
+            ncolor.append(col_path[11])
+    ecolor = []
+    for edge in G.edges:
+        if (edge[0] in paths[0] and edge[1] in paths[0]) or (edge[0] in h and edge[1] in paths[0]) or (edge[0] in paths[0] and edge[1] in h):
+            G[edge[0]][edge[1]]['weight'] = 1
+            ecolor.append(col_path[2])
+        elif (edge[0] in paths[1] and edge[1] in paths[1]) or (edge[0] in h and edge[1] in paths[1]) or (edge[0] in paths[1] and edge[1] in h):
+            ecolor.append(col_path[3])
+            G[edge[0]][edge[1]]['weight'] = 1
+        elif (edge[0] in paths[2] and edge[1] in paths[2]) or (edge[0] in h and edge[1] in paths[2]) or (edge[0] in paths[2] and edge[1] in h):
+            ecolor.append(col_path[4])
+            G[edge[0]][edge[1]]['weight'] = 1
+        elif (edge[0] in paths[3] and edge[1] in paths[3]) or (edge[0] in h and edge[1] in paths[3]) or (edge[0] in paths[3] and edge[1] in h):
+            ecolor.append(col_path[5])
+            G[edge[0]][edge[1]]['weight'] = 1
+        elif (edge[0] in paths[4] and edge[1] in paths[4]) or (edge[0] in h and edge[1] in paths[4]) or (edge[0] in paths[4] and edge[1] in h):
+            ecolor.append(col_path[6])
+            G[edge[0]][edge[1]]['weight'] = 1
+        elif (edge[0] in paths[5] and edge[1] in paths[5]) or (edge[0] in h and edge[1] in paths[5]) or (edge[0] in paths[5] and edge[1] in h):
+            ecolor.append(col_path[7])
+            G[edge[0]][edge[1]]['weight'] = 1
+        elif (edge[0] in paths[6] and edge[1] in paths[6]) or (edge[0] in h and edge[1] in paths[6]) or (edge[0] in paths[6] and edge[1] in h):
+            ecolor.append(col_path[8])
+            G[edge[0]][edge[1]]['weight'] = 1
+        elif (edge[0] in paths[7] and edge[1] in paths[7]) or (edge[0] in h and edge[1] in paths[7]) or (edge[0] in paths[7] and edge[1] in h):
+            ecolor.append(col_path[9])
+            G[edge[0]][edge[1]]['weight'] = 1
+        elif (edge[0] in paths[8] and edge[1] in paths[8]) or (edge[0] in h and edge[1] in paths[8]) or (edge[0] in paths[8] and edge[1] in h):
+            ecolor.append(col_path[10])
+            G[edge[0]][edge[1]]['weight'] = 1
+        else:
+            ecolor.append(col_path[11])
+            G[edge[0]][edge[1]]['weight'] = 1
+    print("num_nodes: " + str(len(G.edges)) + " ncolor: " + str(len(ncolor)))
+    print("num_edges: " + str(len(G.nodes)) + " ecolor: " + str(len(ecolor)))
+    nx.draw_networkx(
+        G,
+        pos=nx.spring_layout(G),
+        node_size=10,
+        node_color=ncolor,
+        edge_color=ecolor,
+        with_labels=False
+    )
+    plt.show()
+
+
 def big():
     f = open("big_paths", "r")
     tmp = [line.rstrip("\n") for line in f]
@@ -358,6 +527,12 @@ def main():
             big()
         elif sys.argv[1] == 'soup':
             soup()
+        elif sys.argv[1] == 'flonetxt':
+            flonetxt()
+        elif sys.argv[1] == 'fltentxt':
+            fltentxt()
+        elif sys.argv[1] == 'flthousandtxt':
+            flthousandtxt()
         else:
             try:
                 f = open(sys.argv[1], 'r')
