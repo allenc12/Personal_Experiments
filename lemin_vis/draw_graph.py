@@ -21,16 +21,73 @@ col_path = ['green', 'red', 'orange', 'magenta', 'cyan', 'brown', 'blue', 'black
             '#afc58c', 'grey']
 
 
+def draw_graph_nodes(G, paths, pos, col_path, draw_grey):
+    n = 0
+    for node in G.nodes:
+        if node == paths[0][0]:
+            nx.draw_networkx_nodes(G, pos, nodelist=[node],
+                                   node_color=col_path[0], node_size=20)
+        elif node == paths[0][1]:
+            nx.draw_networkx_nodes(G, pos, nodelist=[node],
+                                   node_color=col_path[1], node_size=20)
+        for i in range(1, len(paths)):
+            if node in paths[i]:
+                nx.draw_networkx_nodes(G, pos, nodelist=[node],
+                                       node_color=col_path[i+1], node_size=20)
+                flag = False
+                break
+            else:
+                flag = True
+        if flag and draw_grey:
+            nx.draw_networkx_nodes(G, pos, nodelist=[node],
+                                   node_color=col_path[-1],
+                                   node_size=2, alpha=0.1)
+        flag = False
+        n += 1
+        if n == len(G.nodes):
+            break
+    print("num_nodes: " + str(len(G.nodes)) + " n: " + str(n))
+
+
+def draw_graph_edges(G, paths, pos, col_path, draw_grey):
+    e = 0
+    for edge in G.edges:
+        for i in range(1, len(paths)):
+            if (
+                    (edge[0] in paths[i] and edge[1] in paths[i])
+                    or (edge[0] in paths[0] and edge[1] in paths[i])
+                    or (edge[0] in paths[i] and edge[1] in paths[0])
+            ):
+                nx.draw_networkx_edges(G, pos, edgelist=[edge],
+                                       edge_color=col_path[i+1])
+                flag = False
+                break
+            else:
+                flag = True
+        if flag and draw_grey:
+            nx.draw_networkx_edges(G, pos, edgelist=[edge],
+                                   edge_color=col_path[-1], alpha=0.1)
+        flag = False
+        e += 1
+        if e == len(G.edges):
+            break
+    print("num_edges: " + str(len(G.edges)) + " e: " + str(e))
+
+
 class Lemon:
-    def __init__(self, name=None, G=None, debug=None):
+    def __init__(self, name=None, G=None, draw_grey=None, debug=None):
         if name is None:
             self.name = "Graph"
         else:
             self.name = name
         if G is None:
-            self.G = nx.Graph()
+            self.G = nx.Graph(name=self.name)
         else:
             self.G = G
+        if draw_grey is None:
+            self.draw_grey = False
+        else:
+            self.draw_grey = draw_grey
         if debug is None:
             self.debug = 0
         else:
@@ -91,7 +148,7 @@ class Lemon:
             print("num_lines: " + str(num_lines))
         n = 0
         for line in lines:
-            if line is "":
+            if line == "":
                 if self.debug == 2:
                     print("pass")
                 pass
@@ -114,6 +171,12 @@ class Lemon:
                 self.antmoves.append(line)
                 self.add_ant(line)
             n += 1
+        tmp = []
+        for move in self.antmoves[0].split(" "):
+            tmp.append(move.split("-")[0])
+        self.paths.append([self.start, self.end])
+        for ant in tmp:
+            self.paths.append(self.ants[ant][:-1])
         if self.debug >= 1:
             print("num_edges: " + str(len(self.G.edges)) +
                   " ecolors: " + str(len(self.edges_colors)))
@@ -141,18 +204,16 @@ class Lemon:
 
     def draw_graph(self):
         print(nx.info(self.G))
-        pos = nx.spectral_layout(self.G)
-        # shortpaths = nx.algorithms.all_shortest_paths(self.G, self.start, self.end)
-        # nx.draw_networkx_nodes(self.G, pos, sp)
-        # ncolors = ["blue" if n in sp else "orange" for n in self.G.nodes()]
-        nx.draw_networkx(
-            self.G,
-            pos,
-            node_size=10,
-            node_color=self.nodes_colors,
-            edge_color=self.edges_colors,
-            with_labels=False
-        )
+        flub = len(self.G.nodes)
+        if flub < 2000:
+            pos = nx.kamada_kawai_layout(self.G)
+        elif flub < 3500:
+            pos = nx.spectral_layout(self.G)
+        else:
+            pos = nx.spring_layout(self.G)
+        draw_graph_nodes(self.G, self.paths, pos, col_path, self.draw_grey)
+        draw_graph_edges(self.G, self.paths, pos, col_path, self.draw_grey)
+        # nx.draw_networkx_labels(self.G, pos)
         plt.axis('off')
         plt.show()
 
@@ -179,7 +240,7 @@ def lem_to_json(filename):
     edges = []
     for line in lines:
         g = 2
-        if line is not "" and line[0] == '#':
+        if line != "" and line[0] == '#':
             if line == "##start":
                 g = 0
             elif line == "##end":
@@ -193,48 +254,6 @@ def lem_to_json(filename):
     out = open(filename + ".json", 'x')
     out.write(json.JSONEncoder().encode({"nodes": nodes, "links": edges})+'\n')
     out.close()
-
-
-def draw_graph_nodes(G, paths, pos, col_path, draw_grey):
-    n = 0
-    for node in G.nodes:
-        if node == paths[0][0]:
-            nx.draw_networkx_nodes(G, pos, nodelist=[node], node_color=col_path[0], node_size=20)
-        elif node == paths[0][1]:
-            nx.draw_networkx_nodes(G, pos, nodelist=[node], node_color=col_path[1], node_size=20)
-        for i in range(1,len(paths)):
-            if node in paths[i]:
-                nx.draw_networkx_nodes(G, pos, nodelist=[node], node_color=col_path[i+1], node_size=20)
-                flag = False
-                break
-            else:
-                flag = True
-        if flag and draw_grey:
-            nx.draw_networkx_nodes(G, pos, nodelist=[node], node_color=col_path[-1], node_size=2, alpha=0.1)
-        flag = False
-        n += 1
-        if n == len(G.nodes):
-            break
-    print("num_nodes: " + str(len(G.nodes)) + " n: " + str(n))
-
-
-def draw_graph_edges(G, paths, pos, col_path, draw_grey):
-    e = 0
-    for edge in G.edges:
-        for i in range(1,len(paths)):
-            if (edge[0] in paths[i] and edge[1] in paths[i]) or (edge[0] in paths[0] and edge[1] in paths[i]) or (edge[0] in paths[i] and edge[1] in paths[0]):
-                nx.draw_networkx_edges(G, pos, edgelist=[edge], edge_color=col_path[i+1])
-                flag = False
-                break
-            else:
-                flag = True
-        if flag and draw_grey:
-            nx.draw_networkx_edges(G, pos, edgelist=[edge], edge_color=col_path[-1], alpha=0.1)
-        flag = False
-        e += 1
-        if e == len(G.edges):
-            break
-    print("num_edges: " + str(len(G.edges)) + " e: " + str(e))
 
 
 def soup(draw_grey):
@@ -281,7 +300,8 @@ def flthousandtxt(draw_grey):
     tmp = [line.rstrip("\n") for line in f]
     f.close()
     paths = [line.split(" ") for line in tmp]
-    G = nx.read_edgelist("bingus/flow-thousand-edges", delimiter='-', nodetype=str)
+    G = nx.read_edgelist("bingus/flow-thousand-edges",
+                         delimiter='-', nodetype=str)
     pos = nx.kamada_kawai_layout(G)
     draw_graph_nodes(G, paths, pos, col_path, draw_grey)
     draw_graph_edges(G, paths, pos, col_path, draw_grey)
@@ -330,11 +350,13 @@ def big(draw_grey):
 
 
 def main():
-    loops = Lemon(debug=0)
     draw_grey = False
     if len(sys.argv) > 1:
         if len(sys.argv) > 2 and sys.argv[2] == "--draw-grey":
             draw_grey = True
+            loops = Lemon(debug=0, draw_grey=True)
+        else:
+            loops = Lemon(debug=0, draw_grey=False)
         print("draw_grey: " + str(draw_grey))
         if sys.argv[1] == 'big':
             big(draw_grey)
