@@ -24,31 +24,31 @@ if [ $1 -a $1 = 'one' ]; then
 	$TIME $BIN < $ONE > $TMP
 	echo '--------------------------------------------------------------------'
 	head -n2 $ONE
-	grep '^L' $TMP | wc -l
+	grep -c '^L' $TMP
 elif [ $1 -a $1 = 'ten' ]; then
 	./generator --flow-ten > $TEN
 	$TIME $BIN < $TEN > $TMP
 	echo '--------------------------------------------------------------------'
 	head -n2 $TEN
-	grep '^L' $TMP | wc -l
+	grep -c '^L' $TMP
 elif [ $1 -a $1 = 'thousand' ]; then
 	./generator --flow-thousand > $THOUSAND
 	$TIME $BIN < $THOUSAND > $TMP
 	echo '--------------------------------------------------------------------'
 	head -n2 $THOUSAND
-	grep '^L' $TMP | wc -l
+	grep -c '^L' $TMP
 elif [ $1 -a $1 = 'big' ]; then
 	./generator --big > $BIG
 	$TIME $BIN < $BIG > $TMP
 	echo '--------------------------------------------------------------------'
 	head -n2 $BIG
-	grep '^L' $TMP | wc -l
+	grep -c '^L' $TMP
 elif [ $1 -a $1 = 'soup' ]; then
 	./generator --big-superposition > $SOUP
 	$TIME $BIN < $SOUP > $TMP
 	echo '--------------------------------------------------------------------'
 	head -n2 $SOUP
-	grep '^L' $TMP | wc -l
+	grep -c '^L' $TMP
 elif [ $1 -a $1 = 'clean' ]; then
 	rm -f $ONE $TEN $THOUSAND $BIG $SOUP $TMP
 else
