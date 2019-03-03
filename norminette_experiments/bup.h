@@ -6,7 +6,7 @@
 /*   By: callen <callen@student.42.us.org>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/02/08 22:28:02 by callen            #+#    #+#             */
-/*   Updated: 2019/02/20 12:11:05 by callen           ###   ########.fr       */
+/*   Updated: 2019/03/03 13:59:25 by callen           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 # define GMAX(a, b) _Generic((a), float: mf, double: md, default: mi)(a, b)
 # define H(a,b,c,d,e,f) (a + b * c / e % f)
 
+static const unsigned short int												g_;
 enum
 {smibnor,
 	penguosis};
@@ -102,7 +103,7 @@ union																		u_
 		}																	h;
 	}																		i;
 };
-void																		putc
+void																		ftpc
 (int c);
 void																		ft
 (void);
