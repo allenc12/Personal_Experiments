@@ -367,8 +367,13 @@ def big(draw_grey):
 
 
 def main():
-    pr = cProfile.Profile()
-    pr.enable()
+    if len(sys.argv) > 1 and "--debug" in sys.argv:
+        debug = True
+    else:
+        debug = False
+    if debug:
+        pr = cProfile.Profile()
+        pr.enable()
     # p = argparse.ArgumentParser()
     # p.add_argument("layout", help="specify graph layout")
     # args
@@ -420,12 +425,13 @@ def main():
             loops.draw_graph()
         except FileNotFoundError:
             print_err(READ_ERR)
-    pr.disable()
-    s = io.StringIO()
-    sortby = SortKey.CUMULATIVE
-    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-    ps.print_stats()
-    print(s.getvalue())
+    if debug:
+        pr.disable()
+        s = io.StringIO()
+        sortby = SortKey.CUMULATIVE
+        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+        ps.print_stats()
+        print(s.getvalue())
 
 
 if __name__ == '__main__':
