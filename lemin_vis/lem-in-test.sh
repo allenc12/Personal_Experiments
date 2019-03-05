@@ -9,14 +9,16 @@ TMP='/tmp/lem_tmp'
 TIME='/usr/bin/time'
 
 if [ -x './generator' ]; then
-	GEN=./generator
+	GEN='./generator'
 else
-	GEN=./generator
+	GEN='./generator'
 	CHECKSUM="/tmp/sha512sum.txt"
 	grep -E '[a-f0-9]+  generator\.gz' $0 | sed 's/#//g' > $CHECKSUM
 	tail -n1 $0 | sed 's/#//g' | base64 -D > $ARCHIVE
 	shasum -s -a512 -c $CHECKSUM && gunzip -f $ARCHIVE && chmod +x $GEN && $GEN
 	rm -f $CHECKSUM
+	echo "$0: extracted generator binary to pwd"
+	exit 0
 fi
 
 if [ -x './lem-in' ]; then
@@ -89,9 +91,11 @@ elif [ $1 -a $1 = 'soup' ]; then
 	printf "Number of lines from your lem-in:\t$(grep -c '^L' $TMP)\n"
 elif [ $1 -a $1 = 'clean' ]; then
 	rm -f $ONE $TEN $THOUSAND $BIG $SOUP $TMP
+elif [ $1 -a $1 = 'fclean' ]; then
+	rm -f $ONE $TEN $THOUSAND $BIG $SOUP $TMP $GEN
 else
 	echo "$0: error: invalid argument"
-	echo "$0: usage: test.sh [ one | ten | thousand | big | soup | clean]"
+	echo "$0: usage: test.sh [ one | ten | thousand | big | soup | clean | fclean ]"
 	exit 1
 fi
 #0a348974f31742ca7aff3a93716bf7eb1ff157bda1944213791cf0843fbf7090befdb3e2e81850959da02f9fee951fafa562ddf06aca314b79cdb0e5678a7b0a  generator.gz
