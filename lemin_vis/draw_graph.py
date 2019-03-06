@@ -23,7 +23,9 @@ MOVE_ERR = 4
 READ_ERR = 5
 col_path = ['green', 'red', 'orange', 'magenta', 'cyan', 'brown', 'blue', 'black',
             '#f08c00', '#308bc0', '#f9c030', '#23f012', '#497663', '#ec5952', '#db8fb0',
-            '#afc58c', 'grey']
+            '#afc58c', '#08ea07', '#3e60f3', '#9d5d80', '#701488', '#a78923', '#d461f8',
+            '#0628c4', '#2f8bdc', '#1abf73', '#04edc1', '#dffe5d', '#fbfbad', '#b26258',
+            '#d2881e', '#95d6ae', 'grey']
 
 
 def draw_graph_nodes(G, paths, pos, col_path, draw_grey):
