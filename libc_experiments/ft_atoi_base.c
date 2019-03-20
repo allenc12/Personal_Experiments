@@ -267,6 +267,7 @@ static const unsigned char g_tbl[] = { -1,
 };
 
 #define X(a) ((a) == 'x' || (a) == 'X')
+
 static inline void	blep(const uint8_t *v, const char *s, int b, int h[3])
 {
 	while (1)
