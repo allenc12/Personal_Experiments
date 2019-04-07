@@ -9,11 +9,11 @@ Global scope:
 	{
 		void	*data;
 	};
-	union				u_float
+	union				u_float//aligned
 	{
 		long double		f;//vars inside of union require alignment
 		struct {
 			uint64_t	m;
 			uint16_t	se;//vars inside of semi-anon struct require alignment
-		}				i;//semi-anon struct inside of union requires alignment
+		}				i;//struct inside of union requires alignment
 	};
