@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 try:
     import sys
-    import json
-    import cProfile, pstats, io
-    from pstats import SortKey
     import argparse
     import contextlib
 
@@ -11,9 +8,9 @@ try:
         import networkx as nx
         import matplotlib.pyplot as plt
 except ModuleNotFoundError:
-    print("Ensure that the required modules are installed:"
-          "*networkx"
-          "*matplotlib")
+    print("Ensure that the required modules are installed:\n"
+          "\t*networkx\n"
+          "\t*matplotlib")
     exit(1)
 
 ANTS_ERR = 1
@@ -21,6 +18,7 @@ ROOM_ERR = 2
 CONN_ERR = 3
 MOVE_ERR = 4
 READ_ERR = 5
+# Lemon.read_input will fail if number of paths is greater than len(col_path) - 3
 col_path = ['green', 'red', 'orange', 'magenta', 'cyan', 'brown', 'blue', 'black',
             '#f08c00', '#308bc0', '#f9c030', '#23f012', '#497663', '#ec5952', '#db8fb0',
             '#afc58c', '#08ea07', '#3e60f3', '#9d5d80', '#701488', '#a78923', '#d461f8',
@@ -30,6 +28,7 @@ col_path = ['green', 'red', 'orange', 'magenta', 'cyan', 'brown', 'blue', 'black
 
 def draw_graph_nodes(G, paths, pos, col_path, draw_grey):
     n = 0
+    flag = False
     for node in G.nodes:
         if node == paths[0][0]:
             nx.draw_networkx_nodes(G, pos, nodelist=[node],
@@ -53,11 +52,11 @@ def draw_graph_nodes(G, paths, pos, col_path, draw_grey):
         n += 1
         if n == len(G.nodes):
             break
-    print("num_nodes: " + str(len(G.nodes)) + " n: " + str(n))
 
 
 def draw_graph_edges(G, paths, pos, col_path, draw_grey):
     e = 0
+    flag = False
     for edge in G.edges:
         for i in range(1, len(paths)):
             if (
@@ -78,8 +77,6 @@ def draw_graph_edges(G, paths, pos, col_path, draw_grey):
         e += 1
         if e == len(G.edges):
             break
-    print("num_edges: " + str(len(G.edges)) + " e: " + str(e))
-
 
 class Lemon:
     def __init__(self, name=None, G=None, draw_grey=None, debug=None, pos=None):
@@ -100,7 +97,7 @@ class Lemon:
         else:
             self.debug = debug
         if pos is None:
-            self.pos = "spectral"
+            self.pos = "spring"
         else:
             self.pos = pos
         self.connections = []
@@ -117,8 +114,10 @@ class Lemon:
         self.edges_colors = []
 
     def add_room(self, line, start_end):
-        if self.debug == 2:
+        if self.debug >= 3:
             print("add_room")
+        if line is None or len(line) == 0:
+            print_err(CONN_ERR)
         self.nodes.append(line)
         n = line.split(' ')
         if start_end == -1 and 'red' not in self.nodes_colors:
@@ -134,16 +133,20 @@ class Lemon:
             self.nodes_colors.append('grey')
 
     def add_edge(self, line):
-        if self.debug == 2:
+        if self.debug >= 3:
             print("add_edge")
+        if line is None or len(line) == 0:
+            print_err(CONN_ERR)
         self.connections.append(line)
         n = line.split('-')
         self.G.add_edge(n[0], n[1], capacity=1, weight=1)
         self.edges_colors.append("grey")
 
     def add_ant(self, line):
-        if self.debug == 2:
+        if self.debug == 3:
             print("add_ant")
+        if line is None or len(line) == 0:
+            print_err(ANTS_ERR)
         for move in line.split(" "):
             a = move.split("-")
             if a[0] not in self.ants:
@@ -152,20 +155,22 @@ class Lemon:
                 self.ants[a[0]].append(a[1])
 
     def read_input(self, argfile):
+        if argfile is None:
+            print_err(READ_ERR)
         start_end = 0
         lines = [line.rstrip("\n") for line in argfile]
         num_lines = len(lines)
-        if self.debug == 2:
+        if self.debug >= 2:
             print("num_lines: " + str(num_lines))
         n = 0
         for line in lines:
             if line == "":
-                if self.debug == 2:
+                if self.debug >= 2:
                     print("pass")
                 pass
             elif n == 0 and line.isdigit():
                 self.num_ants = int(line)
-                if self.debug == 2:
+                if self.debug >= 2:
                     print("num_ants: " + str(self.num_ants))
             elif line[0] == '#':
                 if line == "##start":
@@ -183,21 +188,21 @@ class Lemon:
                 self.add_ant(line)
             n += 1
         tmp = []
-        for move in self.antmoves[0].split(" "):
-            tmp.append(move.split("-")[0])
+        if (len(self.antmoves) > 0):
+            for move in self.antmoves[0].split(" "):
+                tmp.append(move.split("-")[0])
         self.paths.append([self.start, self.end])
         for ant in tmp:
             self.paths.append(self.ants[ant][:-1])
-        if self.debug >= 1:
+        if self.debug >= 2:
+            print("paths: " + str(len(self.paths)))
+            print("antmoves: " + str(len(self.antmoves)))
+            print("lines: " + str(len(lines)))
+            print("ants: " + str(self.ants))
             print("num_edges: " + str(len(self.G.edges)) +
                   " ecolors: " + str(len(self.edges_colors)))
             print("num_nodes: " + str(len(self.G.nodes)) +
                   " ncolors: " + str(len(self.nodes_colors)))
-            print("lines: " + str(len(lines)))
-            print("antmoves: " + str(len(self.antmoves)))
-            print("paths: " + str(len(self.paths)))
-        if self.debug >= 2:
-            print("ants: " + str(self.ants))
 
     def get_flow(self):
         try:
@@ -207,14 +212,15 @@ class Lemon:
                 self.end,
             )
             flow_val = nx.maximum_flow_value(self.G, self.start, self.end)
-            if self.debug >= 1:
+            if self.debug >= 2:
                 print("max_flow: " + str(flow_val))
                 print(flow_val == R.graph['flow_value'])
         except nx.exception.NetworkXError:
             print("self.G.nodes() is None")
 
     def draw_graph(self):
-        print(nx.info(self.G))
+        if self.debug >= 2:
+            print(nx.info(self.G))
         if self.pos == "spring":
             pos = nx.spring_layout(self.G)
         elif self.pos == "circular":
@@ -229,211 +235,81 @@ class Lemon:
             pos = nx.spectral_layout(self.G)
         else:
             pos = nx.spring_layout(self.G)
+        plt.subplots_adjust(left=0.0, bottom=0.0, right=1.0,
+                            top=1.0, wspace=0.0, hspace=0.0)
+        if self.debug >= 1:
+            print("Drawing graph nodes...")
         draw_graph_nodes(self.G, self.paths, pos, col_path, self.draw_grey)
+        if self.debug >= 1:
+            print("Drawing graph edges...")
         draw_graph_edges(self.G, self.paths, pos, col_path, self.draw_grey)
         # nx.draw_networkx_labels(self.G, pos)
         plt.axis('off')
+        if self.debug >= 1:
+            print("Displaying graph")
         plt.show()
 
 
 def print_err(code):
     if code == ANTS_ERR:
-        print("Ant error")
+        print("draw_graph.py: Error: Ant error")
     elif code == ROOM_ERR:
-        print("Room error")
+        print("draw_graph.py: Error: Room error")
     elif code == CONN_ERR:
-        print("Connection error")
+        print("draw_graph.py: Error: Connection error")
     elif code == MOVE_ERR:
-        print("Move error")
+        print("draw_graph.py: Error: Move error")
     elif code == READ_ERR:
-        print("Read error")
+        print("draw_graph.py: Error: File not found")
     sys.exit(1)
 
 
-def lem_to_json(filename):
-    f = open(filename, 'r')
-    lines = [line.rstrip('\n') for line in f]
-    f.close()
-    nodes = []
-    edges = []
-    for line in lines:
-        g = 2
-        if line != "" and line[0] == '#':
-            if line == "##start":
-                g = 0
-            elif line == "##end":
-                g = 1
-            continue
-        elif line.count(' ') == 2:
-            nodes.append({"id": line.split(' ')[0], "group": g})
-        else:
-            tmp = line.split('-')
-            edges.append({"source": tmp[0], "target": tmp[1], "value": 2})
-    out = open(filename + ".json", 'x')
-    out.write(json.JSONEncoder().encode({"nodes": nodes, "links": edges})+'\n')
-    out.close()
-
-
-def soup(draw_grey):
-    f = open("soup_paths", "r")
-    tmp = [line.rstrip("\n") for line in f]
-    f.close()
-    paths = [line.split(" ") for line in tmp]
-    G = nx.read_edgelist("soup-edgelist", delimiter='-', nodetype=str)
-    pos = nx.kamada_kawai_layout(G)
-    draw_graph_nodes(G, paths, pos, col_path, draw_grey)
-    draw_graph_edges(G, paths, pos, col_path, draw_grey)
-    plt.axis('off')
-    plt.show()
-
-
-def flonetxt(draw_grey):
-    f = open("bingus/flow-one-paths")
-    tmp = [line.rstrip("\n") for line in f]
-    f.close()
-    paths = [line.split(" ") for line in tmp]
-    G = nx.read_edgelist("bingus/flow-one-edges", delimiter='-', nodetype=str)
-    pos = nx.kamada_kawai_layout(G)
-    draw_graph_nodes(G, paths, pos, col_path, draw_grey)
-    draw_graph_edges(G, paths, pos, col_path, draw_grey)
-    plt.axis('off')
-    plt.show()
-
-
-def fltentxt(draw_grey):
-    f = open("bingus/flow-ten-paths")
-    tmp = [line.rstrip("\n") for line in f]
-    f.close()
-    paths = [line.split(" ") for line in tmp]
-    G = nx.read_edgelist("bingus/flow-ten-edges", delimiter='-', nodetype=str)
-    pos = nx.kamada_kawai_layout(G)
-    draw_graph_nodes(G, paths, pos, col_path, draw_grey)
-    draw_graph_edges(G, paths, pos, col_path, draw_grey)
-    plt.axis('off')
-    plt.show()
-
-
-def flthousandtxt(draw_grey):
-    f = open("bingus/flow-thousand-paths", "r")
-    tmp = [line.rstrip("\n") for line in f]
-    f.close()
-    paths = [line.split(" ") for line in tmp]
-    G = nx.read_edgelist("bingus/flow-thousand-edges",
-                         delimiter='-', nodetype=str)
-    pos = nx.kamada_kawai_layout(G)
-    draw_graph_nodes(G, paths, pos, col_path, draw_grey)
-    draw_graph_edges(G, paths, pos, col_path, draw_grey)
-    plt.axis('off')
-    plt.show()
-
-
-def bigtxt(draw_grey):
-    f = open("bingus/big-paths", "r")
-    tmp = [line.rstrip("\n") for line in f]
-    f.close()
-    paths = [line.split(" ") for line in tmp]
-    G = nx.read_edgelist("bingus/big-edges", delimiter='-', nodetype=str)
-    pos = nx.kamada_kawai_layout(G)
-    draw_graph_nodes(G, paths, pos, col_path, draw_grey)
-    draw_graph_edges(G, paths, pos, col_path, draw_grey)
-    plt.axis('off')
-    plt.show()
-
-
-def souptxt(draw_grey):
-    f = open("bingus/soup-paths", "r")
-    tmp = [line.rstrip("\n") for line in f]
-    f.close()
-    paths = [line.split(" ") for line in tmp]
-    G = nx.read_edgelist("bingus/soup-edges", delimiter='-', nodetype=str)
-    # pos = nx.kamada_kawai_layout(G)
-    pos = nx.spectral_layout(G)
-    draw_graph_nodes(G, paths, pos, col_path, draw_grey)
-    draw_graph_edges(G, paths, pos, col_path, draw_grey)
-    print(nx.info(G))
-    plt.axis('off')
-    plt.show()
-
-
-def big(draw_grey):
-    f = open("big_paths", "r")
-    tmp = [line.rstrip("\n") for line in f]
-    f.close()
-    paths = [line.split(" ") for line in tmp]
-    G = nx.read_edgelist("big-edgelist", delimiter='-', nodetype=str)
-    pos = nx.kamada_kawai_layout(G)
-    draw_graph_nodes(G, paths, pos, col_path, draw_grey)
-    draw_graph_edges(G, paths, pos, col_path, draw_grey)
-    plt.axis('off')
-    plt.show()
-
-
 def main():
-    if len(sys.argv) > 1 and "--debug" in sys.argv:
-        debug = True
+    parser = argparse.ArgumentParser(description="Visualize the output of a lem-in binary using Matplotlib and NetworkX")
+    layout = parser.add_mutually_exclusive_group()
+    layout.add_argument("-c", "--circular", help="Use the circular graph layout", action="store_true")
+    layout.add_argument("-k", "--kamada", help="Use the Kamada-Kawai force-directed graph layout", action="store_true")
+    layout.add_argument("-r", "--random", help="Use the random graph layout", action="store_true")
+    layout.add_argument("-l", "--shell", help="Use the shell graph layout", action="store_true")
+    layout.add_argument("-e", "--spectral", help="Use the spectral force-directed graph graph layout", action="store_true")
+    layout.add_argument("-p", "--spring", help="Use the spring force-directed graph layout", action="store_true")
+    parser.add_argument("-f", "--file", type=str, help="Redirected stdout contents from a lem-in binary (defaults to stdin)", default="stdin")
+    parser.add_argument("-a", "--draw-all", help="Draw unused nodes and edges", action="store_true")
+    parser.add_argument("-d", "--debug", help="Increase debug output level", action="count")
+    args = parser.parse_args()
+    if args.spectral:
+        layoutold = "spectral"
+    elif args.kamada:
+        layoutold = "kamada"
+    elif args.spring:
+        layoutold = "spring"
+    elif args.circular:
+        layoutold = "circular"
+    elif args.shell:
+        layoutold = "shell"
+    elif args.random:
+        layoutold = "random"
     else:
-        debug = False
-    if debug:
-        pr = cProfile.Profile()
-        pr.enable()
-    # p = argparse.ArgumentParser()
-    # p.add_argument("layout", help="specify graph layout")
-    # args
-    dg = False
-    layout = None
-    if len(sys.argv) > 1:
-        if "--draw-grey" in sys.argv:
-            dg = True
-        if "--layout=spectral" in sys.argv:
-            layout = "spectral"
-        if "--layout=kamada" in sys.argv:
-            layout = "kamada"
-        if "--layout=spring" in sys.argv:
-            layout = "spring"
-        if "--layout=circular" in sys.argv:
-            layout = "circular"
-        if "--layout=shell" in sys.argv:
-            layout = "shell"
-        if "--layout=random" in sys.argv:
-            layout = "random"
-        loops = Lemon(name=sys.argv[1], debug=0, draw_grey=dg, pos=layout)
-        if sys.argv[1] == 'big':
-            big(dg)
-        elif sys.argv[1] == 'soup':
-            soup(dg)
-        elif sys.argv[1] == 'flonetxt':
-            flonetxt(dg)
-        elif sys.argv[1] == 'fltentxt':
-            fltentxt(dg)
-        elif sys.argv[1] == 'flthousandtxt':
-            flthousandtxt(dg)
-        elif sys.argv[1] == 'bigtxt':
-            bigtxt(dg)
-        elif sys.argv[1] == 'souptxt':
-            souptxt(dg)
-        else:
-            try:
-                f = open(sys.argv[1])
-                loops.read_input(f)
-                f.close()
-                loops.get_flow()
-                loops.draw_graph()
-            except FileNotFoundError:
-                print_err(READ_ERR)
-    else:
+        layoutold = "spring"
+    loops = Lemon(name=args.file, debug=args.debug, draw_grey=args.draw_all, pos=layoutold)
+    if args.file != "stdin":
+        if args.debug is not None and args.debug >= 3:
+            print("reading from file")
         try:
-            loops = Lemon(name="stdin-graph", debug=0, draw_grey=True, pos=layout)
+            f = open(loops.name)
+            loops.read_input(f)
+            f.close()
+            loops.draw_graph()
+        except FileNotFoundError:
+            print_err(READ_ERR)
+    else:
+        if args.debug is not None and args.debug >= 3:
+            print("reading from stdin")
+        try:
             loops.read_input(sys.stdin)
             loops.draw_graph()
         except FileNotFoundError:
             print_err(READ_ERR)
-    if debug:
-        pr.disable()
-        s = io.StringIO()
-        sortby = SortKey.CUMULATIVE
-        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-        ps.print_stats()
-        print(s.getvalue())
 
 
 if __name__ == '__main__':
