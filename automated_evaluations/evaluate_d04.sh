@@ -2,8 +2,7 @@
 
 CUR_EX='ex00'
 cd $CUR_EX
-cc decrypt.c main.c
-# echo `./a.out '000010' '+' '000011'`
+cc 'decrypt.c' main.c
 [[ `./a.out '000010' '+' '000011'` != '000101 (5)' ]] && echo "$CUR_EX failed test 0" && exit 1
 [[ `./a.out '000110' '+' '000001'` != '000111 (7)' ]] && echo "$CUR_EX failed test 1" && exit 1
 [[ `./a.out '000110' '+' '000000'` != '000110 (6)' ]] && echo "$CUR_EX failed test 2" && exit 1
@@ -11,7 +10,11 @@ rm -f a.out
 echo "$CUR_EX Complete"
 
 cd ../ex01/
-cc bit.c main.c
+if [[ `grep 'strcmp(av\[2\], "|"))' main.c` ]]; then
+	sed -ibelb -e 's/\(strcmp(av\[2\], \"|\")\))/\1 == 0)/' main.c
+	rm -f main.cbelb
+fi
+cc 'bit.c' main.c
 CUR_EX='ex01'
 [[ `./a.out '0010' '&' '0000'` != '0000 (0)' ]] && echo "$CUR_EX failed test 0" && exit 1
 [[ `./a.out '0010' '&' '1111'` != '0010 (2)' ]] && echo "$CUR_EX failed test 1" && exit 1
