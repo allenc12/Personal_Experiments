@@ -9,11 +9,12 @@ try:
 
     with contextlib.redirect_stdout(None):
         import networkx as nx
-        import matplotlib.pyplot as plt
+        from networkx.drawing.nx_pydot import write_dot
+        # import matplotlib.pyplot as plt
 except ModuleNotFoundError:
-    print("Ensure that the required modules are installed:"
-          "*networkx"
-          "*matplotlib")
+    print("Ensure that the required modules are installed:\n"
+          "\t*networkx"
+          "\t*matplotlib/pydot/graphviz")
     exit(1)
 
 ANTS_ERR = 1
@@ -232,8 +233,9 @@ class Lemon:
         draw_graph_nodes(self.G, self.paths, pos, col_path, self.draw_grey)
         draw_graph_edges(self.G, self.paths, pos, col_path, self.draw_grey)
         # nx.draw_networkx_labels(self.G, pos)
-        plt.axis('off')
-        plt.show()
+        write_dot(self.G, 'file.dot')
+        # plt.axis('off')
+        # plt.show()
 
 
 def print_err(code):
