@@ -8,6 +8,7 @@ try:
         import networkx as nx
         import pygraphviz
         from networkx.drawing.nx_agraph import write_dot
+        from networkx.drawing.nx_pydot import write_dot
         # import matplotlib.pyplot as plt
 except ModuleNotFoundError:
     print("Ensure that the required modules are installed:\n"
@@ -251,6 +252,7 @@ class Lemon:
             print("Displaying graph")
         write_dot(self.G, self.pos+"_lemin.dot")
         # plt.show()
+        write_dot(self.G, 'file.dot')
 
 
 def print_err(code):
