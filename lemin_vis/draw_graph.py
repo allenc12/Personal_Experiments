@@ -6,7 +6,9 @@ try:
 
     with contextlib.redirect_stdout(None):
         import networkx as nx
-        import matplotlib.pyplot as plt
+        import pygraphviz
+        from networkx.drawing.nx_agraph import write_dot
+        # import matplotlib.pyplot as plt
 except ModuleNotFoundError:
     print("Ensure that the required modules are installed:\n"
           "\t*networkx\n"
@@ -235,8 +237,8 @@ class Lemon:
             pos = nx.spectral_layout(self.G)
         else:
             pos = nx.spring_layout(self.G)
-        plt.subplots_adjust(left=0.0, bottom=0.0, right=1.0,
-                            top=1.0, wspace=0.0, hspace=0.0)
+        # plt.subplots_adjust(left=0.0, bottom=0.0, right=1.0,
+        #                     top=1.0, wspace=0.0, hspace=0.0)
         if self.debug >= 1:
             print("Drawing graph nodes...")
         draw_graph_nodes(self.G, self.paths, pos, col_path, self.draw_grey)
@@ -244,10 +246,11 @@ class Lemon:
             print("Drawing graph edges...")
         draw_graph_edges(self.G, self.paths, pos, col_path, self.draw_grey)
         # nx.draw_networkx_labels(self.G, pos)
-        plt.axis('off')
+        # plt.axis('off')
         if self.debug >= 1:
             print("Displaying graph")
-        plt.show()
+        write_dot(self.G, self.pos+"_lemin.dot")
+        # plt.show()
 
 
 def print_err(code):
