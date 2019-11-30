@@ -1,7 +1,8 @@
 NAME = cnorme
 LEX = flex
 YACC = bison -d --debug
-LDFLAGS = -L/nfs/2018/c/callen/.brew/opt/flex/lib -lfl
+# LDFLAGS = -L/nfs/2018/c/callen/.brew/opt/flex/lib -lfl
+LDFLAGS = -L/usr/local/opt/flex/lib -lfl
 
 all: $(NAME)
 
@@ -15,8 +16,8 @@ lex.yy.c: norme.tab.c
 lex.yy.c: norme.l
 	$(LEX) norme.l
 
-.PHONY: clean k
-clean k:
+.PHONY: clean fclean k nuke
+clean fclean k nuke:
 	-$(RM) $(NAME) lex.yy.c lex.yy.o norme.o norme.tab.c norme.tab.h norme.tab.o norme.output
 
 .PHONY: re

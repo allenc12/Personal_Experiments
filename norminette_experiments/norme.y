@@ -1270,27 +1270,43 @@ selection_statement
 iteration_statement
 	:	WHILE '(' expression ')' statement
 		{
-			fprintf(yyout, "WHILE '(' expression ')' statement\t%s\n", yytext);
+			fprintf(yyout, "WHILE '(' exp ')' st\t%s\n", yytext);
 		}
 	|	DO statement WHILE '(' expression ')' ';'
 		{
-			fprintf(yyout, "DO statement WHILE '(' expression ')' ';'\t%s\n", yytext);
+			// @$.first_column = @1.first_column;
+			// @$.first_line = @1.first_line;
+			// @$.last_column = @6.last_column;
+			// @$.last_line = @6.last_line;
+			fprintf(yyout, "DO st WHILE '(' exp ')' ';'\t%s %d.%d-%d.%d\n", yytext, @$.first_line, @$.first_column, @$.last_line, @$.last_column);
 		}
 	|	FOR '(' expression_statement expression_statement ')' statement
 		{
-			fprintf(yyout, "FOR '(' expression_statement expression_statement ')' statement\t%s\n", yytext);
+			// @$.first_column = @1.first_column;
+			// @$.first_line = @1.first_line;
+			// @$.last_column = @5.last_column;
+			// @$.last_line = @5.last_line;
+			fprintf(yyout, "FOR '(' exp_st exp_st ')' st\t%s %d.%d-%d.%d\n", yytext, @$.first_line, @$.first_column, @$.last_line, @$.last_column);
 		}
 	|	FOR '(' expression_statement expression_statement expression ')' statement
 		{
-			fprintf(yyout, "FOR '(' expression_statement expression_statement expression ')' statement\t%s\n", yytext);
+			// @$.first_column = @1.first_column;
+			// @$.first_line = @1.first_line;
+			// @$.last_column = @6.last_column;
+			// @$.last_line = @6.last_line;
+			fprintf(yyout, "FOR '(' exp_st exp_st exp ')' st\t%s %d.%d-%d.%d\n", yytext, @1.first_line, @1.first_column, @6.last_line, @6.last_column);
 		}
 	|	FOR '(' declaration expression_statement ')' statement
 		{
-			fprintf(yyout, "FOR '(' declaration expression_statement ')' statement\t%s\n", yytext);
+			// @$.first_column = @1.first_column;
+			// @$.first_line = @1.first_line;
+			// @$.last_column = @5.last_column;
+			// @$.last_line = @5.last_line;
+			fprintf(yyout, "FOR '(' decl exp_st ')' st\t%s\n", yytext);
 		}
 	|	FOR '(' declaration expression_statement expression ')' statement
 		{
-			fprintf(yyout, "FOR '(' declaration expression_statement expression ')' statement\t%s\n", yytext);
+			fprintf(yyout, "FOR '(' decl exp_st exp ')' st\t%s\n", yytext);
 		}
 	;
 
@@ -1369,4 +1385,3 @@ void yyerror(const char *s) {
 	fflush(stdout);
 	fprintf(stderr, "%d\n%s\n", yylineno, s);
 }
-

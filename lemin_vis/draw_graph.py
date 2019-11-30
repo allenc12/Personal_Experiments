@@ -9,11 +9,14 @@ try:
         import pygraphviz
         from networkx.drawing.nx_agraph import write_dot
         from networkx.drawing.nx_pydot import write_dot
-        # import matplotlib.pyplot as plt
+        import matplotlib.pyplot as plt
+
 except ModuleNotFoundError:
-    print("Ensure that the required modules are installed:\n"
-          "\t*networkx\n"
-          "\t*matplotlib")
+    print(
+        "Ensure that the required modules are installed:\n"
+        "\t*networkx\n"
+        "\t*matplotlib"
+    )
     exit(1)
 
 ANTS_ERR = 1
@@ -22,11 +25,40 @@ CONN_ERR = 3
 MOVE_ERR = 4
 READ_ERR = 5
 # Lemon.read_input will fail if number of paths is greater than len(col_path) - 3
-col_path = ['green', 'red', 'orange', 'magenta', 'cyan', 'brown', 'blue', 'black',
-            '#f08c00', '#308bc0', '#f9c030', '#23f012', '#497663', '#ec5952', '#db8fb0',
-            '#afc58c', '#08ea07', '#3e60f3', '#9d5d80', '#701488', '#a78923', '#d461f8',
-            '#0628c4', '#2f8bdc', '#1abf73', '#04edc1', '#dffe5d', '#fbfbad', '#b26258',
-            '#d2881e', '#95d6ae', 'grey']
+col_path = [
+    "green",
+    "red",
+    "orange",
+    "magenta",
+    "cyan",
+    "brown",
+    "blue",
+    "black",
+    "#f08c00",
+    "#308bc0",
+    "#f9c030",
+    "#23f012",
+    "#497663",
+    "#ec5952",
+    "#db8fb0",
+    "#afc58c",
+    "#08ea07",
+    "#3e60f3",
+    "#9d5d80",
+    "#701488",
+    "#a78923",
+    "#d461f8",
+    "#0628c4",
+    "#2f8bdc",
+    "#1abf73",
+    "#04edc1",
+    "#dffe5d",
+    "#fbfbad",
+    "#b26258",
+    "#d2881e",
+    "#95d6ae",
+    "grey",
+]
 
 
 def draw_graph_nodes(G, paths, pos, col_path, draw_grey):
@@ -34,23 +66,26 @@ def draw_graph_nodes(G, paths, pos, col_path, draw_grey):
     flag = False
     for node in G.nodes:
         if node == paths[0][0]:
-            nx.draw_networkx_nodes(G, pos, nodelist=[node],
-                                   node_color=col_path[0], node_size=20)
+            nx.draw_networkx_nodes(
+                G, pos, nodelist=[node], node_color=col_path[0], node_size=20
+            )
         elif node == paths[0][1]:
-            nx.draw_networkx_nodes(G, pos, nodelist=[node],
-                                   node_color=col_path[1], node_size=20)
+            nx.draw_networkx_nodes(
+                G, pos, nodelist=[node], node_color=col_path[1], node_size=20
+            )
         for i in range(1, len(paths)):
             if node in paths[i]:
-                nx.draw_networkx_nodes(G, pos, nodelist=[node],
-                                       node_color=col_path[i+1], node_size=20)
+                nx.draw_networkx_nodes(
+                    G, pos, nodelist=[node], node_color=col_path[i + 1], node_size=20
+                )
                 flag = False
                 break
             else:
                 flag = True
         if flag and draw_grey:
-            nx.draw_networkx_nodes(G, pos, nodelist=[node],
-                                   node_color=col_path[-1],
-                                   node_size=2, alpha=0.1)
+            nx.draw_networkx_nodes(
+                G, pos, nodelist=[node], node_color=col_path[-1], node_size=2, alpha=0.1
+            )
         flag = False
         n += 1
         if n == len(G.nodes):
@@ -63,23 +98,26 @@ def draw_graph_edges(G, paths, pos, col_path, draw_grey):
     for edge in G.edges:
         for i in range(1, len(paths)):
             if (
-                    (edge[0] in paths[i] and edge[1] in paths[i])
-                    or (edge[0] in paths[0] and edge[1] in paths[i])
-                    or (edge[0] in paths[i] and edge[1] in paths[0])
+                (edge[0] in paths[i] and edge[1] in paths[i])
+                or (edge[0] in paths[0] and edge[1] in paths[i])
+                or (edge[0] in paths[i] and edge[1] in paths[0])
             ):
-                nx.draw_networkx_edges(G, pos, edgelist=[edge],
-                                       edge_color=col_path[i+1])
+                nx.draw_networkx_edges(
+                    G, pos, edgelist=[edge], edge_color=col_path[i + 1]
+                )
                 flag = False
                 break
             else:
                 flag = True
         if flag and draw_grey:
-            nx.draw_networkx_edges(G, pos, edgelist=[edge],
-                                   edge_color=col_path[-1], alpha=0.1)
+            nx.draw_networkx_edges(
+                G, pos, edgelist=[edge], edge_color=col_path[-1], alpha=0.1
+            )
         flag = False
         e += 1
         if e == len(G.edges):
             break
+
 
 class Lemon:
     def __init__(self, name=None, G=None, draw_grey=None, debug=None, pos=None):
@@ -122,18 +160,18 @@ class Lemon:
         if line is None or len(line) == 0:
             print_err(CONN_ERR)
         self.nodes.append(line)
-        n = line.split(' ')
-        if start_end == -1 and 'red' not in self.nodes_colors:
+        n = line.split(" ")
+        if start_end == -1 and "red" not in self.nodes_colors:
             self.G.add_node(n[0], weight=2)
             self.end = n[0]
-            self.nodes_colors.append('red')
-        elif start_end == 1 and 'green' not in self.nodes_colors:
+            self.nodes_colors.append("red")
+        elif start_end == 1 and "green" not in self.nodes_colors:
             self.G.add_node(n[0], weight=2)
             self.start = n[0]
-            self.nodes_colors.append('green')
+            self.nodes_colors.append("green")
         else:
             self.G.add_node(n[0], weight=1)
-            self.nodes_colors.append('grey')
+            self.nodes_colors.append("grey")
 
     def add_edge(self, line):
         if self.debug >= 3:
@@ -141,7 +179,7 @@ class Lemon:
         if line is None or len(line) == 0:
             print_err(CONN_ERR)
         self.connections.append(line)
-        n = line.split('-')
+        n = line.split("-")
         self.G.add_edge(n[0], n[1], capacity=1, weight=1)
         self.edges_colors.append("grey")
 
@@ -175,7 +213,7 @@ class Lemon:
                 self.num_ants = int(line)
                 if self.debug >= 2:
                     print("num_ants: " + str(self.num_ants))
-            elif line[0] == '#':
+            elif line[0] == "#":
                 if line == "##start":
                     start_end = 1
                 elif line == "##end":
@@ -191,7 +229,7 @@ class Lemon:
                 self.add_ant(line)
             n += 1
         tmp = []
-        if (len(self.antmoves) > 0):
+        if len(self.antmoves) > 0:
             for move in self.antmoves[0].split(" "):
                 tmp.append(move.split("-")[0])
         self.paths.append([self.start, self.end])
@@ -202,22 +240,26 @@ class Lemon:
             print("antmoves: " + str(len(self.antmoves)))
             print("lines: " + str(len(lines)))
             print("ants: " + str(self.ants))
-            print("num_edges: " + str(len(self.G.edges)) +
-                  " ecolors: " + str(len(self.edges_colors)))
-            print("num_nodes: " + str(len(self.G.nodes)) +
-                  " ncolors: " + str(len(self.nodes_colors)))
+            print(
+                "num_edges: "
+                + str(len(self.G.edges))
+                + " ecolors: "
+                + str(len(self.edges_colors))
+            )
+            print(
+                "num_nodes: "
+                + str(len(self.G.nodes))
+                + " ncolors: "
+                + str(len(self.nodes_colors))
+            )
 
     def get_flow(self):
         try:
-            R = nx.algorithms.flow.edmonds_karp(
-                self.G,
-                self.start,
-                self.end,
-            )
+            R = nx.algorithms.flow.edmonds_karp(self.G, self.start, self.end)
             flow_val = nx.maximum_flow_value(self.G, self.start, self.end)
             if self.debug >= 2:
                 print("max_flow: " + str(flow_val))
-                print(flow_val == R.graph['flow_value'])
+                print(flow_val == R.graph["flow_value"])
         except nx.exception.NetworkXError:
             print("self.G.nodes() is None")
 
@@ -270,17 +312,50 @@ def print_err(code):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Visualize the output of a lem-in binary using Matplotlib and NetworkX")
+    parser = argparse.ArgumentParser(
+        description="Visualize the output of a lem-in binary using Matplotlib and NetworkX"
+    )
     layout = parser.add_mutually_exclusive_group()
-    layout.add_argument("-c", "--circular", help="Use the circular graph layout", action="store_true")
-    layout.add_argument("-k", "--kamada", help="Use the Kamada-Kawai force-directed graph layout", action="store_true")
-    layout.add_argument("-r", "--random", help="Use the random graph layout", action="store_true")
-    layout.add_argument("-l", "--shell", help="Use the shell graph layout", action="store_true")
-    layout.add_argument("-e", "--spectral", help="Use the spectral force-directed graph graph layout", action="store_true")
-    layout.add_argument("-p", "--spring", help="Use the spring force-directed graph layout", action="store_true")
-    parser.add_argument("-f", "--file", type=str, help="Redirected stdout contents from a lem-in binary (defaults to stdin)", default="stdin")
-    parser.add_argument("-a", "--draw-all", help="Draw unused nodes and edges", action="store_true")
-    parser.add_argument("-d", "--debug", help="Increase debug output level", action="count")
+    layout.add_argument(
+        "-c", "--circular", help="Use the circular graph layout", action="store_true"
+    )
+    layout.add_argument(
+        "-k",
+        "--kamada",
+        help="Use the Kamada-Kawai force-directed graph layout",
+        action="store_true",
+    )
+    layout.add_argument(
+        "-r", "--random", help="Use the random graph layout", action="store_true"
+    )
+    layout.add_argument(
+        "-l", "--shell", help="Use the shell graph layout", action="store_true"
+    )
+    layout.add_argument(
+        "-e",
+        "--spectral",
+        help="Use the spectral force-directed graph graph layout",
+        action="store_true",
+    )
+    layout.add_argument(
+        "-p",
+        "--spring",
+        help="Use the spring force-directed graph layout",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-f",
+        "--file",
+        type=str,
+        help="Redirected stdout contents from a lem-in binary (defaults to stdin)",
+        default="stdin",
+    )
+    parser.add_argument(
+        "-a", "--draw-all", help="Draw unused nodes and edges", action="store_true"
+    )
+    parser.add_argument(
+        "-d", "--debug", help="Increase debug output level", action="count"
+    )
     args = parser.parse_args()
     if args.spectral:
         layoutold = "spectral"
@@ -296,7 +371,9 @@ def main():
         layoutold = "random"
     else:
         layoutold = "spring"
-    loops = Lemon(name=args.file, debug=args.debug, draw_grey=args.draw_all, pos=layoutold)
+    loops = Lemon(
+        name=args.file, debug=args.debug, draw_grey=args.draw_all, pos=layoutold
+    )
     if args.file != "stdin":
         if args.debug is not None and args.debug >= 3:
             print("reading from file")
@@ -317,5 +394,5 @@ def main():
             print_err(READ_ERR)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -30,6 +30,7 @@
 
 #define YYDEBUG 1
 
+extern int yyparse(void);
 extern FILE *yyin, *yyout;
 /* extern FILE *yyerr; */
 
