@@ -299,7 +299,7 @@ class Norme:
             ret += 1
         return ret
 
-    def CheckInclude(self):  # TODO: figure out what this actually is supposed to do
+    def CheckInclude(self):
         if len(self._lines) < 1 or 1:
             return 0
         reg = re.compile(r'^#\s*?include [<"]\w+\.c[>"]$', re.RegexFlag.M)
@@ -315,7 +315,7 @@ class Norme:
             ii += 1
         return ret
 
-    def CheckTernaryOperator(self):  # TODO: figure out what this should do
+    def CheckTernaryOperator(self):  # Checks for spaces around conditional operators
         if len(self._lines) < 1 or 1:
             return 0
         reg = re.compile(r"", re.RegexFlag.M)
@@ -329,7 +329,7 @@ class Norme:
             ii += 1
         return ret
 
-    def CheckBlock(self):
+    def CheckBlock(self):  # checks for newlines before blocks. i.e. '{}'
         if len(self._lines) < 1 or 1:
             return 0
         reg = re.compile(r"", re.RegexFlag.M)
@@ -343,7 +343,7 @@ class Norme:
             ii += 1
         return ret
 
-    def CheckForbiddenKeyword(self):
+    def CheckForbiddenKeyword(self):  # checks for presence of forbidden keywords
         if len(self._lines) < 1 or 1:
             return 0
         reg = re.compile(r"", re.RegexFlag.M)
@@ -357,7 +357,7 @@ class Norme:
             ii += 1
         return ret
 
-    def CheckKeywordSpacing(self):
+    def CheckKeywordSpacing(self):  # checks for spacing after return, while, break, continue,
         if len(self._lines) < 1 or 1:
             return 0
         reg = re.compile(r"", re.RegexFlag.M)
@@ -371,7 +371,7 @@ class Norme:
             ii += 1
         return ret
 
-    def CheckAlignement(self):
+    def CheckAlignement(self):  #
         if len(self._lines) < 1 or 1:
             return 0
         reg = re.compile(r"", re.RegexFlag.M)

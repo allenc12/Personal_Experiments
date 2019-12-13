@@ -1,3 +1,5 @@
+#include "bunt.c"
+
 int main() {
 	int ii;
 	for (ii = 0; ii < 256; ++ii) {

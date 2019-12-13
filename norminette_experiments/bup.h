@@ -6,7 +6,7 @@
 /*   By: callen <callen@student.42.us.org>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/02/08 22:28:02 by callen            #+#    #+#             */
-/*   Updated: 2019/03/03 13:59:25 by callen           ###   ########.fr       */
+/*   Updated: 2019/12/12 21:19:39 by callen           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,15 @@
 # include <stdbool.h>
 # include <float.h>
 # include <stdint.h>
-# define MAX(a, b) (b ^ ((a ^ b) & -(a < b)))
-# define MIN(a, b) (b ^ ((a ^ b) & -(a > b)))
-# define GMAX(a, b) _Generic((a), float: mf, double: md, default: mi)(a, b)
-# define H(a,b,c,d,e,f) (a + b * c / e % f)
 
-static const unsigned short int												g_;
+/*
+**# define MAX(a, b) (b ^ ((a ^ b) & -(a < b)))
+**# define MIN(a, b) (b ^ ((a ^ b) & -(a > b)))
+**# define GMAX(a, b) _Generic((a), float: mf, double: md, default: mi)(a, b)
+**# define H(a,b,c,d,e,f) (a + b * c / e % f)
+*/
+
+static const unsigned short int												g__;
 enum
 {smibnor,
 	penguosis};
@@ -38,6 +41,15 @@ typedef	struct s_h		t_h;
 typedef struct s________________________________________________h_	t________h_;
 typedef struct s_	t_;
 
+union																		u_bu
+{
+	long double		f;
+	signed long		d;
+	unsigned short	s;
+};
+
+extern int																	add
+(int a, int b);
 typedef struct																s_l
 {
 	void		*data;

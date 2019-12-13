@@ -8,10 +8,10 @@ Version 2.3.3:
 CheckInclude
 CheckTypePrefixName
 CheckOneInstructionPerLine
-CheckTernaryOperator
+CheckTernaryOperator                    checks spacing around ternary operators
 CheckPreprocessorIndentation
 CheckIncludesBeforeFirstInstruction
-CheckBlock
+CheckBlock                              checks for newlines before blocks. i.e. '{}'
 CheckForbiddenKeyword
 CheckKeywordSpacing
 CheckAlignement
