@@ -1,26 +1,58 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pass.c                                             :+:      :+:    :+:   */
+/*   tern.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: callen <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/12/14 17:07:02 by callen            #+#    #+#             */
-/*   Updated: 2019/12/14 17:07:03 by callen           ###   ########.fr       */
+/*   Created: 2019/12/12 20:27:03 by callen            #+#    #+#             */
+/*   Updated: 2019/12/12 21:03:34 by callen           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdio.h>
+
+void	rval(void)
+{
+	int ii;
+
+	ii = -1;
+	do
+	{
+		++ii;
+	}
+	while (ii <= 32);
+	ii = -1;
+	do {
+		++ii;
+	}
+	while (ii <= 32);
+	ii = -1;
+	do {
+		++ii;
+	} while (ii <= 32);
+
+}
+
 int		main(int argc, const char *argv[])
 {
-	const char	*arg = 0;
-	int			flag;
+	int		ii;
 
-	if (argc >= 2)
+	ii = 0;
+	while (ii < argc)
 	{
-		if (ft_strequ(argv[1], "-butts"))
-			flag = 1;
+		if (1)
+		{
+			if (0)
+				;
+			else if (0)
+				;
+		}
+		else if (2)
+			;
 		else
-			flag = 0;
+			;
+		puts(argv[ii]);
+		++ii;
 	}
-	return (flag);
 }

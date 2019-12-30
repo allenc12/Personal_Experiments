@@ -6,7 +6,7 @@
 /*   By: callen <callen@student.42.us.org>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/02/08 22:28:02 by callen            #+#    #+#             */
-/*   Updated: 2019/12/12 21:19:39 by callen           ###   ########.fr       */
+/*   Updated: 2019/12/14 14:28:23 by callen           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@
 **# define H(a,b,c,d,e,f) (a + b * c / e % f)
 */
 
-static const unsigned short int												g__;
+static const unsigned short int	g__;
 enum
 {smibnor,
 	penguosis};

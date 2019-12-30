@@ -4,14 +4,13 @@ Usage: /usr/bin/norminette [options] [files_or_directories]
     -h, --help                       Prints this help
 Norminette usage:
 Version 2.3.3:
-
 CheckInclude
 CheckTypePrefixName
 CheckOneInstructionPerLine
-CheckTernaryOperator                    checks spacing around ternary operators
+CheckTernaryOperator
 CheckPreprocessorIndentation
 CheckIncludesBeforeFirstInstruction
-CheckBlock                              checks for newlines before blocks. i.e. '{}'
+CheckBlock
 CheckForbiddenKeyword
 CheckKeywordSpacing
 CheckAlignement

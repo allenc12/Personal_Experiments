@@ -71,6 +71,7 @@ cmake-build-*/
 .vscode/*
 
 # Project
-*lem-in
 tags
 TAGS
+a
+b

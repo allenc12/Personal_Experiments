@@ -5,35 +5,46 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: callen <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/12/16 20:51:19 by callen            #+#    #+#             */
-/*   Updated: 2019/12/16 22:02:30 by callen           ###   ########.fr       */
+/*   Created: 2019/12/17 14:44:09 by callen            #+#    #+#             */
+/*   Updated: 2019/12/17 19:54:08 by callen           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "bunt.c"
+#include <stdio.h>
+#include <stddef.h>
+#include <sys/cdefs.h>
 
-int
-	main(argc, argv)
-	int argc;
-	const char *argv[];
-	{
-	int ii;
+#define MACRO "H1\xc9H\xf7\xe1\x04;H\xbb/bin//shRST_RWT^\x0f\x05"
 
-	ii = -1;
-	while (++ii < argc)
-	{
-		puts(argv[ii]);
-	}
+static inline int __attribute__((__always_inline__))
+	ret_if(int cond, int retv)
+{
+	if (cond)
+		return (retv);
+	return (0);
 }
 
-int	main() {
-	int ii;
-	for (ii = 0; ii < 256; ++ii) {
-		if (isxdigit(ii))
-			printf("1,");
-		else
-			printf("0,");
-		if (ii % 16 == 15)
-			printf("\n");
-	}
+int
+	tst_macro(int arg)
+{
+	RET_IF(arg == 3, 9);
+	return (0);
+}
+
+int
+	tst_inline(int arg)
+{
+	ret_if(arg == 3, 9);
+	return (0);
+}
+
+int
+	main(void)
+{
+	int r1;
+	int r2;
+
+	r1 = tst_macro(3);
+	r2 = tst_inline(3);
+	printf("r1(%d) r2(%d)\n", r1, r2);
 }
